@@ -1,0 +1,114 @@
+.next-btn {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    z-index: 3;
+}
+
+.prev-btn {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 3;
+}
+
+.carousel-btn-icons {
+    pointer-events: none;
+}
+
+
+.ratio-button-div-context {
+    border: 2px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.ratio_original {
+    width: 20px;
+    height: 30px;
+}
+.ratio_square {
+    width: 20px;
+    height: 20px;
+}
+.ratio_4_5 {
+    width: 20px;
+    height: 25px;
+}
+.ratio_16_9 {
+    width: 25px;
+    height: 15px;
+}
+
+.ratio-button-p-text {
+    font-size: 12px;
+    color: #ccc;
+    margin: 0;
+}
+
+.ratio-button {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50px;
+}
+
+.btn-ratio-container {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+
+.current-media-wrapper {
+    width: 100%;
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.current-media {
+    width: inherit;
+    height: 100%;
+    position: absolute;
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+.current-media-crop {
+    width: inherit;
+    max-width: 100%;
+    display: block;
+}
+
+.viewmap-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    overflow: auto;
+    margin-bottom: 10px;    
+}
+
+.viewmap-image {
+    width: 48px;
+    height: 48px;
+    /* position: absolute;     */
+    overflow: hidden;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.options-wrapper {
+    display: flex;
+    gap: 5px;    
+    margin-bottom: 5px;
+}

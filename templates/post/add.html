@@ -1,0 +1,132 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Add post
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link upload active" href="javascript:void(0);">Upload Media</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link url" href="javascript:void(0);">Media URL</a>
+            </li>
+        </ul>
+
+        <div class="tab-content py-3">
+            <div class="tab-pane show active" id="upload">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="/post/add" method="post" enctype="multipart/form-data">
+                            <div class="mb-2 bg-light rounded p-3">
+                                <label class="d-flex align-items-center justify-content-center" id="media-files-wrapper"
+                                    for="add-media-files">
+                                    <span class="text-center">
+                                        <i class="bi bi-camera" style="font-size: 30px;"></i><br>
+                                        <p class="m-0">Select media</p>
+                                    </span>
+                                    <input class="d-none" type="file" id="add-media-files" name="add-media-files"
+                                        multiple accept="image/jpg, image/jpeg">
+                                </label>
+                            </div>
+                            <div class="upload-preview border rounded">
+                                <!-- upload preview -->
+                            </div>
+                            <!-- <button type="submit" class="btn btn-primary">Save</button> -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="url">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="/post/add" method="post" class="">
+                            <div class="form-group position-relative mb-2">
+                                <input type="text" class="form-control" name="url" autocomplete="off" autofocus
+                                    placeholder="Instagram media URL">
+                                <i id="pasteUrl" class="bi bi-clipboard-check-fill"></i>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Switch between tabs
+    const nav_tab = document.querySelector('ul.nav-tabs');
+    const tab_content = document.querySelector('.tab-content');
+
+    nav_tab.querySelector('.upload').addEventListener('click', () => {
+        nav_tab.querySelector('.upload').classList.add('active');
+        nav_tab.querySelector('.url').classList.remove('active');
+
+        tab_content.querySelector('#upload').classList.add('show', 'active');
+        tab_content.querySelector('#url').classList.remove('show', 'active');
+
+    });
+
+    nav_tab.querySelector('.url').addEventListener('click', () => {
+        nav_tab.querySelector('.url').classList.add('active');
+        nav_tab.querySelector('.upload').classList.remove('active');
+
+        tab_content.querySelector('#url').classList.add('show', 'active');
+        tab_content.querySelector('#upload').classList.remove('show', 'active');
+    });
+
+    // Paste URL (Not supported in firefox yet)
+    const pasteUrlIcon = document.querySelector('#pasteUrl');
+    pasteUrlIcon.addEventListener('click', async function () {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.querySelector('input[name="url"]').value = text;
+        }
+        catch (e) { }
+    });
+
+    let files = [];
+    const mediaFilesWrapper = document.querySelector('#media-files-wrapper');
+    const add_media_files = document.querySelector('#add-media-files');
+
+    add_media_files.addEventListener('change', media_files_handler);
+    function media_files_handler(e) {
+
+        // Avoid files over 100MB
+        files = avoidOverSizeFile(e.target.files);
+
+        // Validate files type (jpg, jpeg) are allowed
+        if (!validateInputFile(files))
+            return;
+
+        // Hide "select media" area
+        mediaFilesWrapper.classList.add('d-none');
+        mediaFilesWrapper.parentElement.classList.remove('p-3');
+
+        // Create a property URL for each File in files array                   
+        for (let file of files) {
+            file.url = URL.createObjectURL(file);
+        }
+
+        const upload_preview = document.querySelector('.upload-preview');
+        const cropImg = new CropImage(upload_preview, files);
+        cropImg.display();
+        
+    }
+
+    // Remove any file reference from memory before reload
+    window.onbeforeunload = function (e) {
+        if (files.length > 0) {
+            for (let f of files) {
+                URL.revokeObjectURL(f.url);
+            }
+        }
+    };
+
+</script>
+{% endblock %}
