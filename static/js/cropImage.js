@@ -53,7 +53,7 @@ class CropImage
          this.cropBtn = document.createElement('button'); this.cropBtn.className = 'button button-crop';
          const cropBtnIcon = document.createElement('i'); cropBtnIcon.className = 'bi bi-crop button-icon-event';
          this.cropBtn.appendChild(cropBtnIcon);
-         this.cropBtn.addEventListener('click', e => this.crop(e));
+         this.cropBtn.addEventListener('click', e => this.toggleCropButtons(e));
                  
         this.saveCropBtn = document.createElement('button'); this.saveCropBtn.className = 'button button-save-crop d-none';
         const saveCropBtnIcon = document.createElement('i'); saveCropBtnIcon.className = 'bi bi-check2 button-icon-event';
@@ -154,7 +154,7 @@ class CropImage
         }
     }
 
-    crop(e) 
+    toggleCropButtons(e) 
     {
         e.preventDefault();       
 
@@ -281,17 +281,30 @@ class CropImage
             fillColor: '#fff',
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high'
-        }).toBlob(blob => {
-            const imgurl = document.createElement('img');
-            const url = URL.createObjectURL(blob);
+        }).toBlob(blob => {            
+            
+            // References:
+            // https://github.com/fengyuanchen/cropperjs#getcroppedcanvasoptions
+            // https://developer.mozilla.org/en-US/docs/Web/API/Blob
+            // https://developer.mozilla.org/en-US/docs/Web/API/File
 
-            imgurl.onload = () => {
-                console.log('cropped img, revoked blob');
-                URL.revokeObjectURL(blob);
-            }
-            imgurl.src = url;
-            imgurl.style = 'width: 200px; height: auto; margin: 10px';
-            this.containerEl.parentElement.appendChild(imgurl);
+            // Revoke old file url
+            URL.revokeObjectURL(this.files[this.index].url);  
+            
+            // Get new file url, and put the same name as the old file
+            const newUrl = URL.createObjectURL(blob);
+            const filename = this.files[this.index].name;
+            
+            // Update file
+            const newFile = new File([blob], filename);
+            this.files[this.index] = newFile;
+            this.files[this.index].url = newUrl;                        
+            
+            // Change image in cropper with the new url
+            this.cropper.replace(this.files[this.index].url);
+
+            // Show (remove, crop) buttons again
+            this.cropBtn.click();           
 
         }, "image/jpeg", 1);
     }    

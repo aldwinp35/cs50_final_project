@@ -6,96 +6,81 @@ Add post
 
 {% block main %}
 <div class="row">
-    <div class="col-md-12">
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a class="nav-link upload active" href="javascript:void(0);">Upload Media</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link url" href="javascript:void(0);">Media URL</a>
-            </li>
-        </ul>
-
-        <div class="tab-content py-3">
-            <div class="tab-pane show active" id="upload">
-                <div class="row">
-                    <div class="col-md-12">
-                        <form action="/post/add" method="post" enctype="multipart/form-data">
-                            <div class="mb-2 bg-light rounded p-3">
-                                <label class="d-flex align-items-center justify-content-center" id="media-files-wrapper"
-                                    for="add-media-files">
-                                    <span class="text-center">
-                                        <i class="bi bi-camera" style="font-size: 30px;"></i><br>
-                                        <p class="m-0">Select media</p>
-                                    </span>
-                                    <input class="d-none" type="file" id="add-media-files" name="add-media-files"
-                                        multiple accept="image/jpg, image/jpeg">
-                                </label>
-                            </div>
-                            <div class="upload-preview border rounded">
-                                <!-- upload preview -->
-                            </div>
-                            <!-- <button type="submit" class="btn btn-primary">Save</button> -->
-                        </form>
+    <div class="col-md-12">  
+        <h3 class="text-center mb-5">New Post</h3>     
+        <form id="formUpload" method="post" enctype="multipart/form-data">                        
+            <div class="accordion accordion-flush" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header mb-2" id="flush-headingOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                            Media
+                        </button>
+                    </h2>
+                    <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                        <div class="mb-2 bg-light rounded p-3">
+                            <label class="d-flex align-items-center justify-content-center" id="media-files-wrapper"
+                                for="add-media-files">
+                                <span class="text-center">
+                                    <i class="bi bi-camera" style="font-size: 30px;"></i><br>
+                                    <p class="m-0">Select media</p>
+                                </span>
+                                <input class="d-none" type="file" id="add-media-files" name="add-media-files"
+                                    multiple accept="image/jpg, image/jpeg">
+                            </label>
+                        </div>
+                        <div class="upload-preview rounded">
+                            <!-- upload preview -->
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="tab-pane" id="url">
-                <div class="row">
-                    <div class="col-md-12">
-                        <form action="/post/add" method="post" class="">
-                            <div class="form-group position-relative mb-2">
-                                <input type="text" class="form-control" name="url" autocomplete="off" autofocus
-                                    placeholder="Instagram media URL">
-                                <i id="pasteUrl" class="bi bi-clipboard-check-fill"></i>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Search</button>
-                        </form>
+                <div class="accordion-item">
+                    <h2 class="accordion-header mb-2" id="flush-headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                            Date / Caption
+                        </button>
+                    </h2>
+                    <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+                        <input type="datetime-local" class="form-control mb-2" autocomplete="off" name="date" id="date" placeholder="Schedule for">
+                        <textarea class="form-control mb-2" autocomplete="off" name="caption" rows="5" id="caption" placeholder="Insert a caption (optional)"></textarea>
+                        <button id="btnSendForm" class="btn btn-dark">Save</button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div>   
+        </form>   
     </div>
 </div>
 
 <script>
-    // Switch between tabs
-    const nav_tab = document.querySelector('ul.nav-tabs');
-    const tab_content = document.querySelector('.tab-content');
-
-    nav_tab.querySelector('.upload').addEventListener('click', () => {
-        nav_tab.querySelector('.upload').classList.add('active');
-        nav_tab.querySelector('.url').classList.remove('active');
-
-        tab_content.querySelector('#upload').classList.add('show', 'active');
-        tab_content.querySelector('#url').classList.remove('show', 'active');
-
-    });
-
-    nav_tab.querySelector('.url').addEventListener('click', () => {
-        nav_tab.querySelector('.url').classList.add('active');
-        nav_tab.querySelector('.upload').classList.remove('active');
-
-        tab_content.querySelector('#url').classList.add('show', 'active');
-        tab_content.querySelector('#upload').classList.remove('show', 'active');
-    });
-
-    // Paste URL (Not supported in firefox yet)
-    const pasteUrlIcon = document.querySelector('#pasteUrl');
-    pasteUrlIcon.addEventListener('click', async function () {
-        try {
-            const text = await navigator.clipboard.readText();
-            document.querySelector('input[name="url"]').value = text;
-        }
-        catch (e) { }
-    });
-
     let files = [];
+    const alert = document.querySelector('.alert');
+    const flushHeadingOne = document.getElementById('flush-headingOne').children[0];        
     const mediaFilesWrapper = document.querySelector('#media-files-wrapper');
     const add_media_files = document.querySelector('#add-media-files');
+    const upload_preview = document.querySelector('.upload-preview');
+    const btnSendForm = document.querySelector('#btnSendForm');           
+    const inputDate = document.querySelector('#date');              
+    const inputCaption = document.querySelector('#caption');    
+    
+    // Set min date for inputDate
+    const minDateObject = new Date();
+    const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))    
+    inputDate.setAttribute('min', minDate);
+    
+    // Remove any file reference from memory before reload
+     window.addEventListener('beforeunload', e => {
+        if (files.length > 0) {
+            for (let f of files) {              
+                URL.revokeObjectURL(f.url);
+            }
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', e => {
+        flushHeadingOne.click();
+    });
 
     add_media_files.addEventListener('change', media_files_handler);
-    function media_files_handler(e) {
+    async function media_files_handler(e) {            
 
         // Avoid files over 100MB
         files = avoidOverSizeFile(e.target.files);
@@ -109,24 +94,68 @@ Add post
         mediaFilesWrapper.parentElement.classList.remove('p-3');
 
         // Create a property URL for each File in files array                   
-        for (let file of files) {
+        for (let file of files) 
+        {
             file.url = URL.createObjectURL(file);
         }
 
-        const upload_preview = document.querySelector('.upload-preview');
         const cropImg = new CropImage(upload_preview, files);
-        cropImg.display();
-        
-    }
+        cropImg.display();             
 
-    // Remove any file reference from memory before reload
-    window.onbeforeunload = function (e) {
-        if (files.length > 0) {
-            for (let f of files) {
-                URL.revokeObjectURL(f.url);
+    } // input file: add_media_files handler
+
+    // SEND DATA WITH POST REQUEST
+    btnSendForm.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        // Validate
+        if (!validateInput(inputDate))
+        {
+            showInputError(inputDate);
+            return;
+        }
+
+        // References: https://developer.mozilla.org/en-US/docs/Web/API/FormData        
+        const fd = new FormData();                                     
+        
+        fd.append('date', inputDate.value);
+        fd.append('caption', inputCaption.value);
+
+        // Append every file in the formData
+        for (let i = 0; i < files.length; i++)
+        {
+            fd.append('file' + i, files[i]);
+        }
+
+        // Send request
+        try {
+            const req = await fetch('/post/add', {
+                method: 'POST',               
+                body: fd
+            });
+
+            const res = await req.json();
+            
+            if (res.ok)
+            {                
+                // Redirect to post page                
+                location.href = location.origin + '/post';
+            }
+            else 
+            {
+                alert.classList.remove('d-none');
+                alert.classList.add('alert-danger'); 
+                alert.textContent =  res.msg;
+
+                if (res.msg.toLowerCase().includes("file")) flushHeadingOne.click();                
             }
         }
-    };
+
+        catch (error) 
+        {
+            console.error('Error:', error)
+        }
+    });   
 
 </script>
 {% endblock %}

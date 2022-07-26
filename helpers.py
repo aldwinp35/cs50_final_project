@@ -1,9 +1,12 @@
 import os
+from urllib import response
 import requests
 import urllib.parse
 
 from flask import redirect, render_template, request, session
 from functools import wraps
+
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 
 def login_required(f):
     """
@@ -41,3 +44,8 @@ def lookup(symbol):
         }
     except (KeyError, TypeError, ValueError):
         return None
+
+# https://flask.palletsprojects.com/en/2.1.x/patterns/fileuploads/
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
