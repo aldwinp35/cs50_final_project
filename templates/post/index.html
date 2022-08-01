@@ -6,79 +6,32 @@ Post
 
 {% block main %}
 
-<div class="row">
-    <div class="col-md-12">        
-        
-        <h3 class="text-center mb-5">Scheduled Post</h3>
+<div class="row mb-5">
+    <div class="col-md-12">
+
+        <h4 class="text-center mb-4">Scheduled Post</h4>
 
         <!-- Position fixed -->
         <a class="add-new-post" href="/post/add">
-            <i class="bi bi-plus"></i>            
+            <i class="bi bi-plus"></i>
         </a>
 
         <div id="post-section">
-            {% for post in posts %}                                
-                <div class="post-box border">
-                    <img src="{{ url_for('send_file', filename=post["filename"]) }}" draggable="false" alt="">
-                    <p class="move-text d-none">move</p>
-                </div>          
+            {% for post in posts %}
+                <div class="post-box">
+                    <div class="rounded" style="background-image: url({{url_for('send_file', filename=post['filename'])}})"></div>
+                    <input type="hidden" id="post-id" value="{{ post['id'] }}">
+                    <p class="image-text">{{ post['date'] }}</p>
+                </div>
             {% endfor %}
-        </div>        
+        </div>
     </div>
 </div>
 
+<!-- Scripts -->
+<!-- https://github.com/SortableJS/Sortable -->
 <script src="/static/js/Sortable.min.js"></script>
+<!-- https://github.com/john-doherty/long-press-event -->
 <script src="/static/js/long-press-event.min.js"></script>
-
-<script>        
-  
-    const postSection = document.querySelector('#post-section');
-
-    const sortable = new Sortable(postSection, {
-        animation: 150,
-        ghostClass: 'dragging', 
-        filter: '.filtered',                        
-        onUnchoose(e) {            
-            e.item.style.scale = 1;
-            e.item.style.cursor = 'pointer';
-            e.item.querySelector('.move-text').classList.add('d-none');
-            
-            // Avoid click event being fired
-            setTimeout(() => {                
-                e.item.classList.add('filtered');
-            }, 100);
-
-        },
-        onStart (e) {
-            document.querySelectorAll('.move-text').forEach(el => el.classList.add('d-none'));
-        },    
-    });
-
-    const posts = document.querySelectorAll('.post-box');
-    for (const post of posts)
-    {
-        post.classList.add('filtered');
-        post.style.cursor = 'pointer';
-
-        post.addEventListener('click', e => {
-            e.preventDefault();
-        
-            // Only fired when filtered class is present
-            if (e.target.classList.contains('filtered'))
-            {                       
-                location.href = location.href + '/add';
-            }
-        });
-
-        post.addEventListener('long-press', e => {
-            e.preventDefault();
-            
-            e.target.classList.remove('filtered');
-            e.target.querySelector('.move-text').classList.remove('d-none');
-            e.target.style.scale = 0.9;            
-            e.target.style.cursor = 'move';                      
-        });                      
-    }
-
-</script>
+<script src="/static/js/post-page.js"></script>
 {% endblock %}

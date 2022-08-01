@@ -1,4 +1,5 @@
-/__pycache__
-/flask_session
-/uploads
-/tmp
+__pycache__/*
+.vscode/*
+flask_session/*
+uploads/*
+tmp/*

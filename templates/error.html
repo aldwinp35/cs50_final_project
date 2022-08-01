@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ error_detail["title"] }}
+{% endblock %}
+
+{% block main %}
+
+    {{ error_detail["code"] }}
+    {{ error_detail["msg"] }}
+
+{% endblock %}

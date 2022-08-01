@@ -5,20 +5,25 @@ Add post
 {% endblock %}
 
 {% block main %}
-<div class="row">
-    <div class="col-md-12">  
-        <h3 class="text-center mb-5">New Post</h3>     
-        <form id="formUpload" method="post" enctype="multipart/form-data">                        
+
+<!-- Styles -->
+<link href="/static/css/cropper.css" rel="stylesheet">
+<link href="/static/css/cropImage.css" rel="stylesheet">
+
+<div class="row mb-5">
+    <div class="col-md-12">
+        <h4 class="text-center mb-4">New Post</h4>
+        <form id="formUpload" method="post" enctype="multipart/form-data">
             <div class="accordion accordion-flush" id="accordionFlushExample">
                 <div class="accordion-item">
                     <h2 class="accordion-header mb-2" id="flush-headingOne">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                        <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
                             Media
                         </button>
                     </h2>
                     <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                        <div class="mb-2 bg-light rounded p-3">
-                            <label class="d-flex align-items-center justify-content-center" id="media-files-wrapper"
+                        <div class="mb-2 rounded p-3" id="media-files-wrapper-parent">
+                            <label class="d-flex align-items-center justify-content-center rounded" id="media-files-wrapper"
                                 for="add-media-files">
                                 <span class="text-center">
                                     <i class="bi bi-camera" style="font-size: 30px;"></i><br>
@@ -33,9 +38,10 @@ Add post
                         </div>
                     </div>
                 </div>
+
                 <div class="accordion-item">
                     <h2 class="accordion-header mb-2" id="flush-headingTwo">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                        <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
                             Date / Caption
                         </button>
                     </h2>
@@ -45,117 +51,16 @@ Add post
                         <button id="btnSendForm" class="btn btn-dark">Save</button>
                     </div>
                 </div>
-            </div>   
-        </form>   
+            </div>
+        </form>
     </div>
 </div>
 
-<script>
-    let files = [];
-    const alert = document.querySelector('.alert');
-    const flushHeadingOne = document.getElementById('flush-headingOne').children[0];        
-    const mediaFilesWrapper = document.querySelector('#media-files-wrapper');
-    const add_media_files = document.querySelector('#add-media-files');
-    const upload_preview = document.querySelector('.upload-preview');
-    const btnSendForm = document.querySelector('#btnSendForm');           
-    const inputDate = document.querySelector('#date');              
-    const inputCaption = document.querySelector('#caption');    
-    
-    // Set min date for inputDate
-    const minDateObject = new Date();
-    const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))    
-    inputDate.setAttribute('min', minDate);
-    
-    // Remove any file reference from memory before reload
-     window.addEventListener('beforeunload', e => {
-        if (files.length > 0) {
-            for (let f of files) {              
-                URL.revokeObjectURL(f.url);
-            }
-        }
-    });
+<!-- Scripts -->
+<!-- https://github.com/fengyuanchen/cropperjs -->
+<script src="/static/js/cropper.js"></script>
+<!-- A class that use cropperjs -->
+<script src="/static/js/cropImage.js"></script>
+<script src="/static/js/post-add-page.js"></script>
 
-    window.addEventListener('DOMContentLoaded', e => {
-        flushHeadingOne.click();
-    });
-
-    add_media_files.addEventListener('change', media_files_handler);
-    async function media_files_handler(e) {            
-
-        // Avoid files over 100MB
-        files = avoidOverSizeFile(e.target.files);
-
-        // Validate files type (jpg, jpeg) are allowed
-        if (!validateInputFile(files))
-            return;
-
-        // Hide "select media" area
-        mediaFilesWrapper.classList.add('d-none');
-        mediaFilesWrapper.parentElement.classList.remove('p-3');
-
-        // Create a property URL for each File in files array                   
-        for (let file of files) 
-        {
-            file.url = URL.createObjectURL(file);
-        }
-
-        const cropImg = new CropImage(upload_preview, files);
-        cropImg.display();             
-
-    } // input file: add_media_files handler
-
-    // SEND DATA WITH POST REQUEST
-    btnSendForm.addEventListener('click', async (e) => {
-        e.preventDefault();
-        
-        // Validate
-        if (!validateInput(inputDate))
-        {
-            showInputError(inputDate);
-            return;
-        }
-
-        // References: https://developer.mozilla.org/en-US/docs/Web/API/FormData        
-        const fd = new FormData();                                     
-        
-        fd.append('date', inputDate.value);
-        fd.append('caption', inputCaption.value);
-
-        // Append every file in the formData
-        for (let i = 0; i < files.length; i++)
-        {
-            fd.append('file' + i, files[i]);
-        }
-
-        // Send request
-        try {
-            const req = await fetch('/post/add', {
-                method: 'POST',               
-                body: fd
-            });
-
-            const res = await req.json();
-            
-            if (res.ok)
-            {                
-                // Redirect to post page                
-                location.href = location.origin + '/post';
-            }
-            else 
-            {
-                alert.classList.remove('d-none');
-                alert.classList.add('alert-danger'); 
-                alert.textContent =  res.msg;
-
-                if (res.msg.toLowerCase().includes("file")) flushHeadingOne.click();                
-            }
-        }
-
-        catch (error) 
-        {
-            console.error('Error:', error)
-        }
-    });   
-
-</script>
 {% endblock %}
