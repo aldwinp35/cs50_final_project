@@ -17,6 +17,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from helpers import login_required, allowed_file, error_template
 from models import db, User, Post
 
+# from dotenv import load_dotenv
+# load_dotenv()
+
 # Configure application
 app = Flask(__name__)
 
@@ -29,6 +32,12 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure SQLAlchemy Library to use SQLite database
+
+# uri = os.getenv("DATABASE_URL")
+# if uri.startswith("postgres://"):
+#     uri = uri.replace("postgres://", "postgresql://")
+# app.config["SQLALCHEMY_DATABASE_URI"] = uri
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
