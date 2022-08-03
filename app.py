@@ -5,15 +5,20 @@ import urllib.parse
 
 from flask import Flask, render_template, request, redirect, flash, jsonify, send_from_directory, session, url_for
 from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 from datetime import datetime
+# from pytz import timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from helpers import login_required, allowed_file, error_template
 from models import db, User, Post
+
+# from dotenv import load_dotenv
+# load_dotenv()
 
 # Configure application
 app = Flask(__name__)
