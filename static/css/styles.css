@@ -63,16 +63,35 @@ body {
 }
 
 .image-text {
+    pointer-events: none;
     width: 90%;
     font-size: 10px;
-    margin: 5px;
     position: absolute;
-    bottom: 0px;
+    bottom: 5px;
+    left: 5px;
     text-align: center;
     border-radius: 20px;
     background-color: rgba(255, 255, 255, .9);
 }
 
+@media(min-width: 768px) {
+    .post-box  div {
+        width: 200px;
+        height: 250px;
+    }
+
+    .image-text {
+        font-size: 14px;
+        left: 10px;
+    }
+}
+
+@media(min-width: 1200px) {
+    .post-box  div {
+        width: 250px;
+        height: 300px;
+    }
+}
 
 /* ROUTE: POST/ADD */
 #media-files-wrapper-parent {
@@ -87,12 +106,15 @@ body {
 }
 
 /* ROUTE: POST EDIT */
-/* .post-section {
-    box-shadow: rgba(198, 198, 198, 0.9) 0px 1px 10px 1px;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 10px;
-} */
+
+@media (min-width: 576px) {
+    .col-section {
+        box-shadow: rgba(198, 198, 198, 0.9) 0px 1px 10px 1px;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 10px;
+    }
+}
 
 .edit-post-picture img {
     width: 100%;
@@ -163,6 +185,7 @@ body {
 
 /* FOOTER */
 footer {
+    z-index: 100;
     position: fixed;
     bottom: 0;
     width: 100%;

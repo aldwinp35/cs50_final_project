@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 from datetime import datetime
-from pytz import timezone
+# from pytz import timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from helpers import login_required, allowed_file, error_template

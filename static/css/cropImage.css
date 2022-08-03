@@ -8,21 +8,21 @@
 }
 
 .button-remove {
-    position: absolute;        
+    position: absolute;
     bottom: 5px;
     left: 5px;
     z-index: 3;
 }
 
 .button-crop {
-    position: absolute;                
+    position: absolute;
     bottom: 5px;
     right: 5px;
     z-index: 3;
 }
 
 .button-save-crop {
-    position: absolute;                
+    position: absolute;
     bottom: 5px;
     right: 5px;
     z-index: 3;
@@ -52,17 +52,29 @@
     width: 50px;
 }
 
-.btn-ratio-context {
+.btn-ratio > * {
+    pointer-events: none;
+}
+
+.btn-ratio div {
     border: 2px solid #ccc;
     border-radius: 3px;
     box-sizing: border-box;
     cursor: pointer;
 }
 
-.btn-ratio-text {
+.btn-ratio p {
     font-size: 12px;
     color: #ccc;
     margin: 0;
+}
+
+.btn-ratio.active div {
+    border: 2px #000 solid;
+}
+
+.btn-ratio.active p {
+    color: #000;
 }
 
 .ratio_original {
@@ -84,6 +96,7 @@
     width: 25px;
     height: 15px;
 }
+
 
 /* Media */
 .current-media-wrapper {
@@ -114,7 +127,7 @@
     justify-content: center;
     gap: 5px;
     overflow: auto;
-    margin-bottom: 10px;    
+    margin-bottom: 10px;
 }
 
 .viewmap-image {

@@ -91,9 +91,14 @@
             {% block main %}{% endblock %}
         </main>
         <footer>
-            Copyright &copy; 2022 Ospost
+            Copyright &copy; <span id="year"></span> Ospost
         </footer>
         <script src="/static/js/functions.js"></script>
+        <script>
+            // Show current year in footer
+            const footer = document.querySelector('footer');
+            footer.querySelector('#year').textContent = new Date().getFullYear();
+        </script>
     </body>
 
 </html>

@@ -21,7 +21,7 @@ Post
                 <div class="post-box">
                     <div class="rounded" style="background-image: url({{url_for('send_file', filename=post['filename'])}})"></div>
                     <input type="hidden" id="post-id" value="{{ post['id'] }}">
-                    <p class="image-text">{{ post['date'] }}</p>
+                    <p class="image-text m-0">{{ post['date'] }}</p>
                 </div>
             {% endfor %}
         </div>
