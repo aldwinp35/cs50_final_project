@@ -39,6 +39,10 @@ app.config["SQLALCHEMY_DATABASE_URI"] = uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
+
+db.create_all()
+db.session.commit()
+
 # Configure SQLAlchemy Library to use SQLite database
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
 # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

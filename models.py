@@ -35,7 +35,3 @@ class Post(db.Model):
 
     # def __repr__(self):
     #     return f'<Post: {self.id}>'
-
-
-db.create_all()
-db.session.commit()
