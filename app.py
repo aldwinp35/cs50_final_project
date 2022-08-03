@@ -1,4 +1,4 @@
-import os
+import os, errno
 import re
 import uuid
 import urllib.parse
@@ -17,8 +17,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from helpers import login_required, allowed_file, error_template
 from models import db, User, Post
 
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 # Configure application
 app = Flask(__name__)
@@ -35,6 +35,7 @@ Session(app)
 uri = os.getenv("DATABASE_URL")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://")
+
 app.config["SQLALCHEMY_DATABASE_URI"] = uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
@@ -179,9 +180,14 @@ def add():
                 filename = str(uuid.uuid4()) + ext
 
                 # Create folder with username if not exist
-                resourcePath = os.path.join(app.config["UPLOAD_FOLDER_ABSOLUTE"], session.get("username"))
+                # https://stackoverflow.com/questions/273192/how-can-i-safely-create-a-nested-directory?answertab=trending#tab-top
+                resourcePath = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username"))
                 if not os.path.exists(resourcePath):
-                    os.mkdir(resourcePath)
+                    try:
+                        os.makedirs(resourcePath)
+                    except OSError as e:
+                        if e.errno != errno.EEXIST:
+                            raise
 
                 # Save file
                 file.save(os.path.join(resourcePath, filename))
