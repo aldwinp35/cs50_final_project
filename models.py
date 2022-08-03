@@ -37,5 +37,5 @@ class Post(db.Model):
     #     return f'<Post: {self.id}>'
 
 
-# db.create_all()
-# db.session.commit()
+db.create_all()
+db.session.commit()
