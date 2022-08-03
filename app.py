@@ -31,13 +31,13 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+# Configure SQLAlchemy Library to use heroku PostgreeSQL database
+uri = os.getenv("DATABASE_URL")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://")
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
+
 # Configure SQLAlchemy Library to use SQLite database
-
-# uri = os.getenv("DATABASE_URL")
-# if uri.startswith("postgres://"):
-#     uri = uri.replace("postgres://", "postgresql://")
-# app.config["SQLALCHEMY_DATABASE_URI"] = uri
-
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
