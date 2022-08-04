@@ -11,6 +11,21 @@ body {
     min-height: 100vh;
 }
 
+/* BOOSTRAP DEFAULT */
+.alert {
+    width: 100%;
+}
+
+.accordion-button:not(.collapsed), .accordion-item {
+    box-shadow: none;
+    border: none;
+}
+
+.accordion-button.collapsed {
+    background-color: #eee;
+}
+
+
 .input-text-error {
     box-shadow: 0 0 0 .25rem rgba(253, 13, 13, 0.40);
 }
@@ -74,7 +89,19 @@ body {
     background-color: rgba(255, 255, 255, .9);
 }
 
+.no-post-scheduled {
+    width: 100%;
+    padding: 15px;
+    background: var(--bs-gray-100);
+    color: var(--bs-gray-600);
+}
+
 @media(min-width: 768px) {
+
+    .alert {
+        max-width: 60%;
+    }
+
     .post-box  div {
         width: 200px;
         height: 250px;
@@ -83,6 +110,10 @@ body {
     .image-text {
         font-size: 14px;
         left: 10px;
+    }
+
+    .no-post-scheduled {
+        max-width: 60%;
     }
 }
 
@@ -171,16 +202,6 @@ body {
 .edit-post-buttons {
     display: flex;
     /* justify-content: space-around; */
-}
-
-/* BOOSTRAP DEFAULT */
-.accordion-button:not(.collapsed), .accordion-item {
-    box-shadow: none;
-    border: none;
-}
-
-.accordion-button.collapsed {
-    background-color: #eee;
 }
 
 /* FOOTER */
