@@ -4,33 +4,86 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
     <title>Ospost | Log In with facebook</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: url('../../static/bg-login.jpg');
+            background-size: cover;
+            background-position: center center;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            height: calc(100vh - 20px);
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            padding: 40px;
+            border-radius: 10px;
+
+            background-color: rgba(255, 255, 255, .8);
+            box-shadow: -2px 6px 10px 5px rgba(168, 168, 168, 0.4);
+        }
+
+        .container h2 {
+            margin: 0;
+            color: #767688;
+            margin-bottom: 30px;
+        }
+
+        .image-credit {
+            color: #fff;
+            text-decoration: none;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 10px;
+        }
+
+        .image-credit:hover {
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Implement Facebook Login Permissions: https://developers.facebook.com/docs/instagram-api/getting-started -->
-    <!-- Content Publishing Permissions: https://developers.facebook.com/docs/instagram-api/guides/content-publishing -->
-    <div
-        class="fb-login-button"
-        data-width=""
-        data-size="large"
-        data-button-type="continue_with"
-        data-layout="default"
-        data-auto-logout-link="false"
-        data-scope="
-            public_profile,
-            email,
-            pages_show_list,
-            instagram_manage_insights,
-            ads_management,
-            business_management,
-            instagram_basic,
-            instagram_content_publish,
-            pages_read_engagement"
-        data-use-continue-as="false"
-        onlogin="checkLoginState();">
+    <div class="container">
+        <h2>Log In with Facebook</h2>
+
+        <!-- Implement Facebook Login Permissions: https://developers.facebook.com/docs/instagram-api/getting-started -->
+        <!-- Content Publishing Permissions: https://developers.facebook.com/docs/instagram-api/guides/content-publishing -->
+        <div
+            class="fb-login-button"
+            data-width=""
+            data-size="large"
+            data-button-type="continue_with"
+            data-layout="default"
+            data-auto-logout-link="false"
+            data-scope="
+                public_profile,
+                email,
+                pages_show_list,
+                instagram_manage_insights,
+                ads_management,
+                business_management,
+                instagram_basic,
+                instagram_content_publish,
+                pages_read_engagement"
+            data-use-continue-as="false"
+            onlogin="checkLoginState();">
+        </div>
     </div>
 
+    <a class="image-credit" href="https://www.freepik.com/">Image designed by Freepik</a>
     <script src="/static/js/fblogin.js"></script>
 </body>
 </html>
