@@ -220,7 +220,7 @@ def edit(post_id):
 
     # Check post_id is present
     if not post_id:
-        error_template("Bad request", "Post ID is required", 400)
+        return error_template("Bad request", "Post ID is required", 400)
 
     if request.method == "POST":
 
@@ -240,7 +240,7 @@ def edit(post_id):
         post = Post.query.filter(Post.id == post_id).first()
 
         if post == None:
-            error_template("Not found", "Resource not found", 404)
+            return error_template("Not found", "Resource not found", 404)
 
         # Update post
         post.caption = caption
@@ -255,7 +255,7 @@ def edit(post_id):
         post = Post.query.filter(Post.id == post_id).first()
 
         if post == None:
-            error_template("Not found", "Resource not found", 404)
+            return error_template("Not found", "Resource not found", 404)
 
         # Decode caption
         post.caption = urllib.parse.unquote(post.caption)
@@ -272,7 +272,15 @@ def remove(post_id):
     post = Post.query.filter(Post.id == post_id).first()
 
     if post == None:
-        error_template("Not found", "Resource not found", 404)
+        return error_template("Not found", "Resource not found", 404)
+
+    # Delete file
+    resourcePath = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username"))
+    filename = post.filename
+    try:
+        os.unlink(os.path.join(resourcePath, filename))
+    except OSError as e:
+        raise
 
     # Delete post
     db.session.delete(post)
