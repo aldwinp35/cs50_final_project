@@ -22,14 +22,12 @@ class Post(db.Model):
     id: int
     date: str
     caption: str
-    media_url: str
     filename: str
     user_id: int
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     caption = db.Column(db.Text, nullable=True)
-    media_url = db.Column(db.Text, nullable=False)
     filename = db.Column(db.Text, unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 

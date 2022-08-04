@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ospost | Log In with facebook</title>
+</head>
+<body>
+
+    <!-- Implement Facebook Login Permissions: https://developers.facebook.com/docs/instagram-api/getting-started -->
+    <!-- Content Publishing Permissions: https://developers.facebook.com/docs/instagram-api/guides/content-publishing -->
+    <div
+        class="fb-login-button"
+        data-width=""
+        data-size="large"
+        data-button-type="continue_with"
+        data-layout="default"
+        data-auto-logout-link="false"
+        data-scope="
+            public_profile,
+            email,
+            pages_show_list,
+            instagram_manage_insights,
+            ads_management,
+            business_management,
+            instagram_basic,
+            instagram_content_publish,
+            pages_read_engagement"
+        data-use-continue-as="false"
+        onlogin="checkLoginState();">
+    </div>
+
+    <script src="/static/js/fblogin.js"></script>
+</body>
+</html>

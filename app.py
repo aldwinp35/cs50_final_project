@@ -32,21 +32,21 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure SQLAlchemy Library to use heroku PostgreeSQL database
-uri = os.getenv("DATABASE_URL")
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://")
+# uri = os.getenv("DATABASE_URL")
+# if uri.startswith("postgres://"):
+#     uri = uri.replace("postgres://", "postgresql://")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = uri
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db.init_app(app)
-
-with app.app_context():
-    db.create_all()
-
-# Configure SQLAlchemy Library to use SQLite database
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
+# app.config["SQLALCHEMY_DATABASE_URI"] = uri
 # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # db.init_app(app)
+
+# with app.app_context():
+#     db.create_all()
+
+# Configure SQLAlchemy Library to use SQLite database
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db.init_app(app)
 
 # Configure uploads folder path
 app.config["UPLOAD_FOLDER_RELATIVE"] = "uploads"
@@ -57,6 +57,12 @@ app.config["UPLOAD_FOLDER_ABSOLUTE"] = os.path.join(app.root_path, "uploads")
 @app.route("/", methods=["GET"])
 def index():
     return render_template("home/index.html")
+
+
+# Render login page (Login with facebook)
+@app.route("/login", methods=["GET"])
+def login():
+    return render_template("login/index.html")
 
 
 # Render post page, update posts by changing its order (drag and drop using sortable.js in client side)
@@ -193,7 +199,7 @@ def add():
                 file.save(os.path.join(resourcePath, filename))
 
         # Save post in database
-        post = Post(date=date, caption=caption, media_url="https://example.com", filename=filename, user_id=1)
+        post = Post(date=date, caption=caption, filename=filename, user_id=1)
         db.session.add(post)
         db.session.commit()
 
