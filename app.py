@@ -31,22 +31,31 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure SQLAlchemy Library to use heroku PostgreeSQL database
-uri = os.getenv("DATABASE_URL")
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://")
+# Change flask env: export FLASK_ENV=production
+if os.environ.get("FLASK_ENV") == 'development':
+    # Configure SQLAlchemy Library to use SQLite database
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.init_app(app)
+else:
+    # Configure SQLAlchemy Library to use heroku PostgreeSQL database
+    uri = os.getenv("DATABASE_URL")
+    if uri.startswith("postgres://"):
+        uri = uri.replace("postgres://", "postgresql://")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = uri
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db.init_app(app)
+    app.config["SQLALCHEMY_DATABASE_URI"] = uri
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.init_app(app)
 
-# with app.app_context():
-#     db.create_all()
+    # CREATING DATABASE FROM MODELS
+    # with app.app_context():
+    #     db.create_all()
 
-# Configure SQLAlchemy Library to use SQLite database
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
-# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# db.init_app(app)
+    # Or using CLI:
+    # > from models import db, User, Post
+    # > from app import app
+    # > app.app_context().push()
+
 
 # Configure uploads folder path
 app.config["UPLOAD_FOLDER_RELATIVE"] = "uploads"
