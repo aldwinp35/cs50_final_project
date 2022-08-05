@@ -91,7 +91,7 @@
         <img src="{{ url_for('static', filename='logo.png') }}" draggable="false" alt="">
         <h3>Log In / Register</h3>
 
-        
+
         <!-- Implement Facebook Login Permissions: https://developers.facebook.com/docs/instagram-api/getting-started -->
         <!-- Content Publishing Permissions: https://developers.facebook.com/docs/instagram-api/guides/content-publishing -->
         <div
@@ -102,8 +102,8 @@
             data-layout="default"
             data-auto-logout-link="false"
             data-scope="
-                email,
                 instagram_basic,
+                pages_show_list,
                 instagram_content_publish"
             data-use-continue-as="false"
             onlogin="checkLoginState();">
