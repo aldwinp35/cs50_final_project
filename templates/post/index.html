@@ -36,8 +36,8 @@ Post
 
 <!-- Scripts -->
 <!-- https://github.com/SortableJS/Sortable -->
-<script src="/static/js/Sortable.min.js"></script>
+<script src="{{ url_for('static', filename='js/Sortable.min.js') }}"></script>
 <!-- https://github.com/john-doherty/long-press-event -->
-<script src="/static/js/long-press-event.min.js"></script>
-<script src="/static/js/post-page.js"></script>
+<script src="{{ url_for('static', filename='js/long-press-event.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/post-page.js') }}"></script>
 {% endblock %}

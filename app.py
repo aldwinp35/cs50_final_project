@@ -72,9 +72,17 @@ def index():
 # Render login page (Login with facebook)
 @app.route("/login", methods=["GET"])
 def login():
+    if request.method == "POST":
 
-    fb = {"version": os.getenv("FB_VERSION"), "app_id": os.getenv("FB_APP_ID")}
-    return render_template("login/index.html", fb=fb)
+        # Get data
+        if request.data:
+            data = request.json
+            print(data)
+
+    # GET: Render login page
+    else:
+        fb = {"version": os.getenv("FB_VERSION"), "app_id": os.getenv("FB_APP_ID")}
+        return render_template("login/index.html", fb=fb)
 
 
 # Render post page, update posts by changing its order (drag and drop using sortable.js in client side)
@@ -199,16 +207,16 @@ def add():
 
                 # Create folder with username if not exist
                 # https://stackoverflow.com/questions/273192/how-can-i-safely-create-a-nested-directory?answertab=trending#tab-top
-                resourcePath = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username"))
-                if not os.path.exists(resourcePath):
+                resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username"))
+                if not os.path.exists(resource_path):
                     try:
-                        os.makedirs(resourcePath)
+                        os.makedirs(resource_path)
                     except OSError as e:
                         if e.errno != errno.EEXIST:
                             raise
 
                 # Save file
-                file.save(os.path.join(resourcePath, filename))
+                file.save(os.path.join(resource_path, filename))
 
         # Save post in database
         post = Post(date=date, caption=caption, filename=filename, user_id=1)
@@ -287,10 +295,10 @@ def remove(post_id):
         return error_template("Not found", "Resource not found", 404)
 
     # Delete file
-    resourcePath = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username"))
+    resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username"))
     filename = post.filename
     try:
-        os.unlink(os.path.join(resourcePath, filename))
+        os.unlink(os.path.join(resource_path, filename))
     except OSError as e:
         raise
 

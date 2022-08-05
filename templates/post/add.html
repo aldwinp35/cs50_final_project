@@ -7,8 +7,8 @@ Add post
 {% block main %}
 
 <!-- Styles -->
-<link href="/static/css/cropper.css" rel="stylesheet">
-<link href="/static/css/cropImage.css" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/cropper.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/cropImage.css') }}" rel="stylesheet">
 
 <div class="row justify-content-center mb-5">
     <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4 col-section">
@@ -58,9 +58,9 @@ Add post
 
 <!-- Scripts -->
 <!-- https://github.com/fengyuanchen/cropperjs -->
-<script src="/static/js/cropper.js"></script>
+<script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
 <!-- A class that use cropperjs -->
-<script src="/static/js/cropImage.js"></script>
-<script src="/static/js/post-add-page.js"></script>
+<script src="{{ url_for('static', filename='js/cropImage.js') }}"></script>
+<script src="{{ url_for('static', filename='js/post-add-page.js') }}"></script>
 
 {% endblock %}
