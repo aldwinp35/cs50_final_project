@@ -1,3 +1,4 @@
+import json
 import os, errno
 import re
 import uuid
@@ -71,7 +72,9 @@ def index():
 # Render login page (Login with facebook)
 @app.route("/login", methods=["GET"])
 def login():
-    return render_template("login/index.html")
+
+    fb = {"version": os.getenv("FB_VERSION"), "app_id": os.getenv("FB_APP_ID")}
+    return render_template("login/index.html", fb=fb)
 
 
 # Render post page, update posts by changing its order (drag and drop using sortable.js in client side)
