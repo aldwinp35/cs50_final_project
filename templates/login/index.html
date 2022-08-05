@@ -116,14 +116,21 @@
     </div>
 
     <a class="image-credit" href="https://www.freepik.com/">Image designed by Freepik</a>
+
+    <input type="hidden" id="app_id" value="{{ fb.app_id }}">
+    <input type="hidden" id="app_version" value="{{ fb.version }}">
+
     <script>
+
+        const app_id = document.getElementById('app_id');
+        const app_version = document.getElementById('app_version');
 
         window.fbAsyncInit = function() {
             FB.init({
-                appId      : "{{fb.app_id}}",
+                appId      : app_id.value,
                 cookie     : true,
                 xfbml      : true,
-                version    : "{{fb.version}}"
+                version    : app_version.value
             });
 
             FB.AppEvents.logPageView();
