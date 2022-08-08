@@ -132,7 +132,7 @@ def login():
                 raise
 
             # Search user by Instagram Account Id
-            user = User.query.filter(User.ig_account_id == ig_account_id).first()
+            user = User.query(User.ig_account_id, User.access_token).filter(User.ig_account_id == ig_account_id).first()
             if user != None:
                 # Update user access token
                 user.access_token = long_access_token
