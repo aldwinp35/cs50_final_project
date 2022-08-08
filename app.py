@@ -42,8 +42,8 @@ if os.environ.get("FLASK_ENV") == 'development':
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
 
     # Configure job_store database for debug
     jobstores = {
@@ -59,8 +59,8 @@ else:
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
 
     # Configure job_store database for production
     jobstores = {
@@ -95,11 +95,11 @@ app.config["UPLOAD_FOLDER_ABSOLUTE"] = os.path.join(app.root_path, "uploads")
 
 # Render home page
 @app.route("/", methods=["GET"])
-# @login_required
+@login_required
 def index():
-    t = datetime(2022, 8, 8, 17, 30)
-    p = Post.query.filter(Post.date == t).first()
-    print(p)
+    # t = datetime(2022, 8, 8, 17, 30)
+    # p = Post.query.filter(Post.date == t).first()
+    # print(p)
     return render_template("home/index.html")
 
 
