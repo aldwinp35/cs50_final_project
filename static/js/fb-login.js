@@ -40,7 +40,7 @@ function statusChangeCallback(response)
                 if (!fbPageIdResponse.error)
                 {
                     // Add fb_id to response
-                    response.fb_id = fbPageIdResponse['data'][0].id;
+                    // response.fb_id = fbPageIdResponse['data'][0].id;
 
                     // Get Account page id
                     FB.api(`${fbPageIdResponse['data'][0].id}?fields=instagram_business_account`, async function (igAccountIdResponse) {
@@ -51,13 +51,7 @@ function statusChangeCallback(response)
 
                             // Send response
                             const loginResponse = await request('/login', 'POST', response);
-                            if (!loginResponse.ok)
-                            {
-                                // Redirect to home
-                            }
-
-                            console.log(loginResponse);
-
+                            if (loginResponse.ok) location.href = location.origin;
                         }
                     }); // igAccountIdResponse
                 }

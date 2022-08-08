@@ -1,21 +1,24 @@
-import json
 import os, errno
 import re
+from shutil import copy2
 import uuid
 import urllib.parse
+import requests
 
-from flask import Flask, render_template, request, redirect, flash, jsonify, send_from_directory, session, url_for
+from flask import Flask, render_template, request, redirect, flash, jsonify, send_from_directory, session
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 
-from werkzeug.security import generate_password_hash, check_password_hash
+# from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 from datetime import datetime
 # from pytz import timezone
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.executors.pool import ThreadPoolExecutor
 
-from helpers import login_required, allowed_file, error_template
+from helpers import login_required, allowed_file, error_template, publish_post
 from models import db, User, Post
 
 from dotenv import load_dotenv
@@ -38,6 +41,14 @@ if os.environ.get("FLASK_ENV") == 'development':
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
+    # Configure job_store database for debug
+    jobstores = {
+        'default': SQLAlchemyJobStore(url='sqlite:///tmp/ospost.db', tablename='apscheduler_jobs'),
+    }
 else:
     # Configure SQLAlchemy Library to use heroku PostgreeSQL database
     uri = os.getenv("DATABASE_URL")
@@ -47,6 +58,14 @@ else:
     app.config["SQLALCHEMY_DATABASE_URI"] = uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
+    # Configure job_store database for production
+    jobstores = {
+        'default': SQLAlchemyJobStore(url=uri, tablename='apscheduler_jobs'),
+    }
 
     # CREATING DATABASE FROM MODELS
     # with app.app_context():
@@ -58,6 +77,17 @@ else:
     # > app.app_context().push()
 
 
+executors = {
+    'default': ThreadPoolExecutor(20),
+}
+job_defaults = {
+    'coalesce': False,
+    'max_instances': 3
+}
+scheduler = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
+scheduler.start()
+
+
 # Configure uploads folder path
 app.config["UPLOAD_FOLDER_RELATIVE"] = "uploads"
 app.config["UPLOAD_FOLDER_ABSOLUTE"] = os.path.join(app.root_path, "uploads")
@@ -65,19 +95,60 @@ app.config["UPLOAD_FOLDER_ABSOLUTE"] = os.path.join(app.root_path, "uploads")
 
 # Render home page
 @app.route("/", methods=["GET"])
+# @login_required
 def index():
+    t = datetime(2022, 8, 8, 17, 30)
+    p = Post.query.filter(Post.date == t).first()
+    print(p)
     return render_template("home/index.html")
 
 
 # Render login page (Login with facebook)
-@app.route("/login", methods=["GET"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
+
+    session.clear()
+
     if request.method == "POST":
 
         # Get data
         if request.data:
-            data = request.json
-            print(data)
+            # fb_page_id = request.json["fb_id"]
+            ig_account_id = request.json["ig_id"]
+            temp_access_token = request.json["authResponse"]["accessToken"]
+
+            # Get long-live access token.
+            try:
+                fb_endpoint = os.getenv("FB_ENDPOINT")
+                fb_app_id = os.getenv("FB_APP_ID")
+                fb_app_secret = os.getenv("FB_APP_SECRET")
+
+                url = f"{fb_endpoint}oauth/access_token?grant_type=fb_exchange_token&client_id={fb_app_id}&client_secret={fb_app_secret}&fb_exchange_token={temp_access_token}"
+                response = requests.get(url)
+                response.raise_for_status()
+                json_response = response.json()
+                long_access_token = json_response["access_token"]
+            except requests.RequestException:
+                raise
+
+            # Search user by Instagram Account Id
+            user = User.query.filter(User.ig_account_id == ig_account_id).first()
+            if user != None:
+                # Update user access token
+                user.access_token = long_access_token
+                db.session.flush()
+            else:
+                # Insert new user
+                user = User(username='algo', access_token=long_access_token, ig_account_id=ig_account_id)
+                db.session.add(user)
+                db.session.flush()
+
+            # Set session
+            session["user_id"] = user.id
+            session["ig_account_id"] = ig_account_id
+
+            # Get back to view with ok
+            return jsonify({"ok": True})
 
     # GET: Render login page
     else:
@@ -87,11 +158,8 @@ def login():
 
 # Render post page, update posts by changing its order (drag and drop using sortable.js in client side)
 @app.route("/post", methods=["GET", "POST"])
+@login_required
 def post():
-
-    # Test user data
-    session["user_id"] = 1
-    session["username"] = "jose123"
 
     if request.method == "POST":
 
@@ -166,11 +234,10 @@ def post():
 
 # Render post/add page, add new post
 @app.route("/post/add", methods=["GET", "POST"])
+@login_required
 def add():
 
     if request.method == "POST":
-        # Test user data
-        session["username"] = "jose123"
 
         # Get date, caption
         if not request.form.get("date"):
@@ -205,9 +272,9 @@ def add():
                 # Generate random filename
                 filename = str(uuid.uuid4()) + ext
 
-                # Create folder with username if not exist
+                # Create folder with ig_account_id if not exist
                 # https://stackoverflow.com/questions/273192/how-can-i-safely-create-a-nested-directory?answertab=trending#tab-top
-                resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username"))
+                resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("ig_account_id"))
                 if not os.path.exists(resource_path):
                     try:
                         os.makedirs(resource_path)
@@ -219,9 +286,12 @@ def add():
                 file.save(os.path.join(resource_path, filename))
 
         # Save post in database
-        post = Post(date=date, caption=caption, filename=filename, user_id=1)
+        post = Post(date=date, caption=caption, filename=filename, user_id=session.get("user_id"))
         db.session.add(post)
-        db.session.commit()
+        db.session.flush()
+
+        # Schedule post with apscheduler
+        scheduler.add_job(publish_post, 'date', run_date=date, id=post.id)
 
         # Notify client with ok message
         # From client redirect to post page with flash message
@@ -236,6 +306,7 @@ def add():
 # Render single post details, edit single post
 @app.route("/post/edit/", defaults={"post_id": None})
 @app.route("/post/edit/<post_id>", methods=["GET", "POST"])
+@login_required
 def edit(post_id):
 
     # Check post_id is present
@@ -285,8 +356,8 @@ def edit(post_id):
 
 # Remove post
 @app.route("/post/remove/<post_id>", methods=["POST"])
+@login_required
 def remove(post_id):
-    # Remove post
 
     # Retrieve post form database
     post = Post.query.filter(Post.id == post_id).first()
@@ -295,12 +366,15 @@ def remove(post_id):
         return error_template("Not found", "Resource not found", 404)
 
     # Delete file
-    resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username"))
+    resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("ig_account_id"))
     filename = post.filename
     try:
         os.unlink(os.path.join(resource_path, filename))
     except OSError as e:
         raise
+
+    # Remove job_store
+    scheduler.remove_job(post.id)
 
     # Delete post
     db.session.delete(post)
@@ -312,15 +386,53 @@ def remove(post_id):
 
 # Publish post
 @app.route("/post/publish/<post_id>", methods=["POST"])
+@login_required
 def publish(post_id):
     # publish post
     return render_template("post/publish")
 
 
+@app.route("/account", methods=["GET", "POST"])
+@login_required
+def account():
+
+    if request.method == "POST":
+
+        # Update user email
+        if request.form.get("email"):
+
+            # Validate email
+            valid_email = re.search("[a-z\d]+\@[a-z\d]+\.com", request.form.get("email"))
+            if not valid_email:
+                return error_template("Invalid email", "Invalid email", 400)
+
+            # Update user email
+            email = valid_email.group()
+            user = User.query.filter(User.id == session.get("user_id")).first()
+            user.email = email
+            db.session.commit()
+
+        # Update user name
+        if request.form.get("name"):
+            name = request.form.get("name")
+            user = User.query.filter(User.id == session.get("user_id")).first()
+            user.name = name
+            db.session.commit()
+
+        # Redirect to account page
+        return redirect("/account")
+
+     # GET: Render account page
+    else:
+        user = User.query.filter(User.id == session.get("user_id")).first()
+        return render_template("account.html", user=user)
+
+
 # Serve image to view (<img src="...")
 @app.route("/uploads/<path:filename>")
+@login_required
 def send_file(filename):
-    return send_from_directory(os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("username")), filename, as_attachment=True)
+    return send_from_directory(os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("ig_account_id")), filename, as_attachment=True)
 
 
 @app.route("/privacy", methods=["GET"])

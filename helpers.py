@@ -1,10 +1,14 @@
 import os
-from urllib import response
 import requests
 import urllib.parse
+from shutil import copy2
+from time import sleep
+from datetime import datetime
 
 from flask import redirect, render_template, request, session
 from functools import wraps
+
+from models import db, Post, User
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 
@@ -50,7 +54,89 @@ def lookup(symbol):
     except (KeyError, TypeError, ValueError):
         return None
 
+
+def http_request(url, type, data=None):
+    try:
+        if type.upper() == "POST":
+            if data == None:
+                response = requests.post(url)
+            else:
+                response = requests.post(url, data)
+        else:
+            response = requests.get(url)
+
+        response.raise_for_status()
+    except requests.RequestException:
+        return None
+
+    try:
+        return response.json()
+    except Exception as e:
+        return e
+
+
 # https://flask.palletsprojects.com/en/2.1.x/patterns/fileuploads/
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def publish_post():
+    if os.environ.get("FLASK_ENV") == 'development':
+        print("Publishing post ...")
+    else:
+        # Get post information
+        user = User.query.filter(User.id == session.get('user_id')).first()
+        if not user:
+            print("No user was found")
+            return None
+
+        now = datetime(datetime.now().year, datetime.now().month, datetime.now().day, datetime.now().hour, datetime.now().minute)
+        post = User.posts.query.filter(Post.date == now).first()
+
+        # Move image to static/tmp/ directory
+        src = os.path.join("uploads", user.ig_account_id, post.filename)
+        dst = "static/tmp/"
+
+        # Create destination directory
+        if not os.path.exists(dst):
+            os.mkdir(dst)
+
+        # Move img to tmp/
+        copy2(src, dst)
+
+        # Image url
+        image_url = os.path.join(dst, post.filename)
+
+        # Get facebook endpoint
+        fb_endpoint = os.getenv("FB_ENDPOINT")
+
+        # Create IG Container ID
+        url = f"{fb_endpoint}{user.ig_account_id}/media?image_url={image_url}&caption={post.caption}&access_token={user.access_token}"
+        response = http_request(url, "POST")
+        container_id = response["id"]
+
+        # Check container status
+        url = f"https://graph.facebook.com/{container_id}?fields=status_code&access_token={user.access_token}"
+        status = "IN_PROGRESS"
+        while (status != "FINISHED "):
+            response = http_request(url, "get")
+            status = response["status_code"]
+            sleep(3)
+
+        # Publish Container
+        url = f"{fb_endpoint}{user.ig_account_id}/media_publish?creation_id={container_id}&access_token={user.access_token}"
+        response = http_request(url, "POST")
+        ig_media_id = response["id"]
+
+        if ig_media_id:
+            print("media was published")
+            # Delete media from static
+            os.unlink(os.path.join(dst, post.filename))
+
+            # Delete post form database
+            db.session.delete(post)
+            db.session.commit()
+        else:
+            print("Fail to post media")
+            # Send an email to user

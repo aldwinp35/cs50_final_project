@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    My Account
+{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col col-md-8 col-lg-6 col-xl-4">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <div class="d-flex element-wraper">
+                        <p>Full Name</p>
+                        <p class="me-2">{{ user["name"] }}</p>
+                        <a class="ms-auto text-center edit" href="javascript:void(0);">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </div>
+                    <div class="d-flex d-none form-wraper">
+                        <p>Full Name</p>
+                        <form action="/account" method="post" class="d-flex">
+                            <input type="text" autocomplete="off" name="name" placeholder="Enter name" class="form-control-sm form-control me-2">
+                            <button class="btn btn-sm btn-primary me-2"><i class="bi bi-check2"></i></button>
+                            <button class="btn btn-sm btn-danger"><i class="bi bi-x-lg"></i></button>
+                        </form>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="d-flex element-wraper">
+                        <p>Email</p>
+                        <p class="me-2">{{ user["email"] }}</p>
+                        <a class="ms-auto text-center edit" href="javascript:void(0);">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </div>
+                    <div class="d-flex d-none form-wraper">
+                        <p>Email</p>
+                        <form action="/account" method="post" class="d-flex">
+                            <input type="email" autocomplete="off" name="email" placeholder="Enter email" class="form-control-sm form-control me-2">
+                            <button class="btn btn-sm btn-primary me-2"><i class="bi bi-check2"></i></button>
+                            <button class="btn btn-sm btn-danger"><i class="bi bi-x-lg"></i></button>
+                        </form>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="d-flex">
+                        <p>Username</p>
+                        <p class="me-2">{{ user["username"] }}</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // When click on pencil-edit
+        document.querySelectorAll('.edit').forEach(el => el.addEventListener('click', edit))
+
+        function edit(){
+
+            // Get li parent element
+            const liElement = this.closest('li')
+
+            /* Dom Elements */
+            const elementWraper = liElement.querySelector('.element-wraper')
+            const previousValue = liElement.querySelectorAll('p')[1].textContent
+
+            /* Form */
+            const form = liElement.querySelector('form')
+            const formWraper = liElement.querySelector('.form-wraper')
+            const textInput = form[0]
+            const saveButton = form[1]
+            const cancelButton = form[2]
+
+            // Show form and hide elements
+            elementWraper.classList.add('d-none')
+            formWraper.classList.remove('d-none')
+
+            // Focus text field
+            textInput.focus()
+
+            // Put previous value in text field
+            textInput.value = previousValue
+
+            // Cancel edition
+            cancelButton.addEventListener('click', function(e){
+                e.preventDefault();
+
+                // Hide form
+                formWraper.classList.add('d-none')
+                elementWraper.classList.remove('d-none')
+            })
+
+            // Save edition
+            saveButton.addEventListener('click', function(e){
+                e.preventDefault();
+
+                // Validate empty input
+                if (!validateInput(textInput)){
+                    showInputError(textInput)
+                    return;
+                } else if (textInput.value === previousValue){
+
+                    // Hide form
+                    formWraper.classList.add('d-none')
+                    elementWraper.classList.remove('d-none')
+                    return;
+                }
+
+                // Submit form
+                form.submit()
+            });
+        }
+
+    </script>
+
+{% endblock %}
