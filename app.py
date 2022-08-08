@@ -139,7 +139,7 @@ def login():
                 db.session.flush()
             else:
                 # Insert new user
-                user = User(username='algo', access_token=long_access_token, ig_account_id=ig_account_id)
+                user = User(access_token=long_access_token, ig_account_id=ig_account_id)
                 db.session.add(user)
                 db.session.flush()
 
