@@ -5,7 +5,7 @@ from time import sleep
 from shutil import copy2
 from functools import wraps
 from datetime import datetime
-from flask import redirect, render_template, request, session
+from flask import redirect, render_template, session
 
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
@@ -108,7 +108,7 @@ def publish_post(user_id):
         copy2(src, dst)
 
         # Image url
-        image_url = request.base_url + os.path.join(dst, post.filename)
+        image_url = os.getenv("APP_URL") + os.path.join(dst, post.filename)
 
         # Get facebook endpoint
         fb_endpoint = os.getenv("FB_ENDPOINT")

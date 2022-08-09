@@ -71,6 +71,7 @@ scheduler.start()
 @app.route("/", methods=["GET"])
 @login_required
 def index():
+    print(request.path)
     return render_template("home/index.html")
 
 
