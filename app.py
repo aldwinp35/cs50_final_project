@@ -1,56 +1,45 @@
-import os, errno
+import os
 import re
-from shutil import copy2
 import uuid
-import urllib.parse
+import errno
 import requests
-
-from flask import Flask, render_template, request, redirect, flash, jsonify, send_from_directory, session
-from flask_session import Session
-from flask_sqlalchemy import SQLAlchemy
-
-# from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-
+import urllib.parse
 from datetime import datetime
-# from pytz import timezone
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
-from apscheduler.executors.pool import ThreadPoolExecutor
-
-from helpers import login_required, allowed_file, error_template, publish_post
-from models import db, User, Post
-
 from dotenv import load_dotenv
+from flask_session import Session
+from werkzeug.utils import secure_filename
+from models import db, User, Post
+from apscheduler.executors.pool import ThreadPoolExecutor
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.schedulers.background import BackgroundScheduler
+from helpers import login_required, allowed_file, error_template, publish_post
+from flask import Flask, render_template, request, redirect, flash, jsonify, send_from_directory, session
 load_dotenv()
 
-# Configure application
+# ------------------------
+# CONFIGURATIONS
+# ------------------------
+
 app = Flask(__name__)
 
-# Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
-
-# Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["UPLOAD_FOLDER_RELATIVE"] = "uploads"
+app.config["UPLOAD_FOLDER_ABSOLUTE"] = os.path.join(app.root_path, "uploads")
+
 Session(app)
 
-# Change flask env: export FLASK_ENV=production
-if os.environ.get("FLASK_ENV") == 'development':
-    # Configure SQLAlchemy Library to use SQLite database
+if os.environ.get("FLASK_ENV") == "development":
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
-    # with app.app_context():
-    #     db.create_all()
-
-    # Configure job_store database for debug
     jobstores = {
-        'default': SQLAlchemyJobStore(url='sqlite:///tmp/ospost.db', tablename='apscheduler_jobs'),
+        "default": SQLAlchemyJobStore(url="sqlite:///tmp/ospost.db", tablename="apscheduler_jobs"),
     }
+
 else:
-    # Configure SQLAlchemy Library to use heroku PostgreeSQL database
     uri = os.getenv("DATABASE_URL")
     if uri.startswith("postgres://"):
         uri = uri.replace("postgres://", "postgresql://")
@@ -59,47 +48,29 @@ else:
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
-    # with app.app_context():
-    #     db.create_all()
-
-    # Configure job_store database for production
     jobstores = {
-        'default': SQLAlchemyJobStore(url=uri, tablename='apscheduler_jobs'),
+        "default": SQLAlchemyJobStore(url=uri, tablename="apscheduler_jobs"),
     }
 
-    # CREATING DATABASE FROM MODELS
-    # with app.app_context():
-    #     db.create_all()
-
-    # Or using CLI:
-    # > from models import db, User, Post
-    # > from app import app
-    # > app.app_context().push()
-
-
 executors = {
-    'default': ThreadPoolExecutor(20),
+    "default": ThreadPoolExecutor(20),
 }
 job_defaults = {
-    'coalesce': False,
-    'max_instances': 3
+    "coalesce": False,
+    "max_instances": 3
 }
 scheduler = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
 scheduler.start()
 
 
-# Configure uploads folder path
-app.config["UPLOAD_FOLDER_RELATIVE"] = "uploads"
-app.config["UPLOAD_FOLDER_ABSOLUTE"] = os.path.join(app.root_path, "uploads")
-
+# ------------------------
+# ROUTES
+# ------------------------
 
 # Render home page
 @app.route("/", methods=["GET"])
 @login_required
 def index():
-    # t = datetime(2022, 8, 8, 17, 30)
-    # p = Post.query.filter(Post.date == t).first()
-    # print(p)
     return render_template("home/index.html")
 
 
@@ -141,7 +112,7 @@ def login():
                 # Insert new user
                 user = User(access_token=long_access_token, ig_account_id=ig_account_id)
                 db.session.add(user)
-                db.session.flush()
+                db.session.commit()
 
             # Set session
             session["user_id"] = user.id
@@ -152,8 +123,20 @@ def login():
 
     # GET: Render login page
     else:
-        fb = {"version": os.getenv("FB_VERSION"), "app_id": os.getenv("FB_APP_ID")}
-        return render_template("login/index.html", fb=fb)
+        if os.environ.get("FLASK_ENV") == "development":
+
+            user = User.query.filter(User.id == 1).first()
+            if user == None:
+                user = User(access_token=os.getenv("TMP_ACCESS_TOKEN"), ig_account_id=os.getenv("TMP_IG_ACCOUNT_ID"))
+                db.session.add(user)
+                db.session.commit()
+                session["user_id"] = user.id
+                session["ig_account_id"] = user.ig_account_id
+                return redirect("/")
+
+        else:
+            fb = {"version": os.getenv("FB_VERSION"), "app_id": os.getenv("FB_APP_ID")}
+            return render_template("login/index.html", fb=fb)
 
 
 # Render post page, update posts by changing its order (drag and drop using sortable.js in client side)
@@ -248,6 +231,8 @@ def add():
 
         # Convert iso date to date
         date = datetime.fromisoformat(date)
+        if date < datetime.now():
+            return jsonify({"ok": False, "msg": "Date must be in the future!"})
 
         # Clear HTML tags. Check for more options: https://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
         caption = re.sub("<[^<]+?>", "", caption)
@@ -285,13 +270,14 @@ def add():
                 # Save file
                 file.save(os.path.join(resource_path, filename))
 
+        user_id = session.get("user_id")
         # Save post in database
-        post = Post(date=date, caption=caption, filename=filename, user_id=session.get("user_id"))
+        post = Post(date=date, caption=caption, filename=filename, user_id=user_id)
         db.session.add(post)
-        db.session.flush()
+        db.session.commit()
 
         # Schedule post with apscheduler
-        scheduler.add_job(publish_post, 'date', run_date=date, id=post.id)
+        scheduler.add_job(publish_post, args=[user_id], trigger="date", run_date=date, id=str(post.id))
 
         # Notify client with ok message
         # From client redirect to post page with flash message
@@ -326,6 +312,8 @@ def edit(post_id):
         # Get date
         date = request.form.get("date")
         date = datetime.fromisoformat(date)
+        if date < datetime.now():
+            return jsonify({"ok": False, "msg": "Date must be in the future!"})
 
         # Retrieve post from database
         post = Post.query.filter(Post.id == post_id).first()
@@ -337,6 +325,14 @@ def edit(post_id):
         post.caption = caption
         post.date = date
         db.session.commit()
+
+        # Reschedule job
+        job_id = str(post.id)
+        job = scheduler.get_job(job_id)
+        if job != None:
+            scheduler.reschedule_job(id=job_id, trigger="date", run_date=date)
+        else:
+            scheduler.add_job(publish_post, args=[session.get("user_id")], trigger="date", run_date=date, id=job_id)
 
         flash("Post updated", "info")
         return redirect("/post")
@@ -374,14 +370,17 @@ def remove(post_id):
         raise
 
     # Remove job_store
-    scheduler.remove_job(post.id)
+    job_id = str(post.id)
+    job = scheduler.get_job(job_id)
+    if job != None:
+        scheduler.remove_job(job_id)
 
     # Delete post
     db.session.delete(post)
     db.session.commit()
 
     flash("Post deleted", "info")
-    return redirect('/post')
+    return redirect("/post")
 
 
 # Publish post
@@ -438,3 +437,4 @@ def send_file(filename):
 @app.route("/privacy", methods=["GET"])
 def privacy():
     return render_template("privacy_policy.html")
+

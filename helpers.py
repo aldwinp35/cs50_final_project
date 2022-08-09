@@ -1,14 +1,12 @@
 import os
 import requests
 import urllib.parse
-from shutil import copy2
 from time import sleep
-from datetime import datetime
-
-from flask import redirect, render_template, request, session
+from shutil import copy2
 from functools import wraps
+from datetime import datetime
+from flask import redirect, render_template, request, session
 
-from models import db, Post, User
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 
@@ -66,7 +64,8 @@ def http_request(url, type, data=None):
             response = requests.get(url)
 
         response.raise_for_status()
-    except requests.RequestException:
+    except requests.RequestException as e:
+        print(e)
         return None
 
     try:
@@ -81,18 +80,21 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def publish_post():
-    if os.environ.get("FLASK_ENV") == 'development':
-        print("Publishing post ...")
-    else:
-        # Get post information
-        user = User.query.filter(User.id == session.get('user_id')).first()
+def publish_post(user_id):
+
+    from models import db, Post, User
+    from app import app
+    with app.test_request_context():
+        user = User.query.filter(User.id == user_id).first()
         if not user:
             print("No user was found")
             return None
 
         now = datetime(datetime.now().year, datetime.now().month, datetime.now().day, datetime.now().hour, datetime.now().minute)
-        post = User.posts.query.filter(Post.date == now).first()
+        post = Post.query.filter(Post.user_id == user.id, Post.date == now).first()
+        if not post:
+            print("No post was found")
+            return None
 
         # Move image to static/tmp/ directory
         src = os.path.join("uploads", user.ig_account_id, post.filename)
@@ -106,7 +108,7 @@ def publish_post():
         copy2(src, dst)
 
         # Image url
-        image_url = os.path.join(dst, post.filename)
+        image_url = request.base_url + os.path.join(dst, post.filename)
 
         # Get facebook endpoint
         fb_endpoint = os.getenv("FB_ENDPOINT")
@@ -114,6 +116,9 @@ def publish_post():
         # Create IG Container ID
         url = f"{fb_endpoint}{user.ig_account_id}/media?image_url={image_url}&caption={post.caption}&access_token={user.access_token}"
         response = http_request(url, "POST")
+        if response is None:
+            return None
+
         container_id = response["id"]
 
         # Check container status
@@ -121,12 +126,17 @@ def publish_post():
         status = "IN_PROGRESS"
         while (status != "FINISHED "):
             response = http_request(url, "get")
+            if response is None:
+                return None
             status = response["status_code"]
             sleep(3)
 
         # Publish Container
         url = f"{fb_endpoint}{user.ig_account_id}/media_publish?creation_id={container_id}&access_token={user.access_token}"
         response = http_request(url, "POST")
+        if response is None:
+            return None
+
         ig_media_id = response["id"]
 
         if ig_media_id:
