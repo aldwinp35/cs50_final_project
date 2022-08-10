@@ -124,18 +124,20 @@ def publish_post(user_id):
         # Check container status
         url = f"https://graph.facebook.com/{container_id}?fields=status_code&access_token={user.access_token}"
         status = "IN_PROGRESS"
-        i = 0
+        try_index = 1
+        try_times = 10
+        wait_time = 4
         while (status != "FINISHED"):
-            if i == 3:
-                return;
-                
+            if try_index == try_times:
+                return None
+
             response = http_request(url, "get")
             if response is None:
                 return None
-            status = response["status_code"]
-            sleep(3)
-            i += 1
 
+            status = response["status_code"]
+            try_index += 1
+            sleep(wait_time)
 
         # Publish Container
         url = f"{fb_endpoint}{user.ig_account_id}/media_publish?creation_id={container_id}&access_token={user.access_token}"
