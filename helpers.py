@@ -11,7 +11,7 @@ from flask import redirect, render_template, session
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 
 def error_template(title, msg, status_code):
-    error_detail = {"title": title, "msg": msg, "code": status_code}
+    error_detail = {"title": title.title(), "msg": msg.capitalize(), "code": status_code}
     return render_template("error.html", error_detail=error_detail), error_detail["code"]
 
 

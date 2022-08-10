@@ -23,7 +23,7 @@ if (postSection !== null)
                 "end": {"index": newIndex},
             }
             const alert = document.querySelector('.alert');
-            const response = await request('/post', 'POST', data);
+            const response = await request('/', 'POST', data);
             if (!response.ok) console.error('Could not change post date!\n', 'error_datail: ', response.msg);
             if (response.ok)
             {
@@ -33,10 +33,6 @@ if (postSection !== null)
             }
 
             e.item.classList.add('filtered');
-            // Not need to use setTimeout if async/await is been used.
-            // Avoid click event being fired before class filter is applied
-            // setTimeout(() => {
-            // }, 100);
         },
     });
 
@@ -55,7 +51,7 @@ if (postSection !== null)
             if (e.target.classList.contains('filtered'))
             {
                 const postId = e.target.querySelector('#post-id').value;
-                location.href = `${location.href}/edit/${postId}`;
+                location.href = `${location.href}post/edit/${postId}`;
             }
         });
 

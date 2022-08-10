@@ -101,8 +101,8 @@ btnSendForm.addEventListener('click', async (e) => {
 
         if (res.ok)
         {
-            // Redirect to post page
-            location.href = location.origin + '/post';
+            // Redirect to home page
+            location.href = location.origin;
         }
         else
         {

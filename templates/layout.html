@@ -30,12 +30,9 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
-                    {% if session["user_id"] %}
                     <ul class="navbar-nav me-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href="/post/add">New</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/post">Post</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                        <li class="nav-item d-md-none"><a class="nav-link" href="/account">My Account</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/post/add">New Post</a></li>
+                        <li class="nav-item d-md-none"><a class="nav-link" href="/account">Account</a></li>
                         <li class="nav-item d-md-none"><a class="nav-link" href="/logout">Log Out</a></li>
                     </ul>
                     <ul class="navbar-nav ms-auto mt-0 mt-md-2">
@@ -48,15 +45,14 @@
                                 <ul class="dropdown-menu end-0" style="left: auto">
                                     <li>
                                         <span class="dropdown-item no-hover">
-                                            <p class="m-0 text-muted" style="font-size: 14px;">USERNAME</p>
-                                            <p class="m-0 fs-6">username here</p>
+                                            <p class="m-0 text-muted" style="font-size: 14px;">INSTAGRAM ID</p>
+                                            <p class="m-0 fs-6"><small>{{ session.get("ig_account_id") }}</small></p>
                                         </span>
                                     </li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a class="dropdown-item" href="/account">My Account</a></li>
-                                    <li><a class="dropdown-item" href="/password">Change Password</a></li>
+                                    <li><a class="dropdown-item" href="/account">Account</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -64,22 +60,13 @@
                                 </ul>
                             </div>
                         </li>
-
                     </ul>
-                    {% else %}
-                    <ul class="navbar-nav ms-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href="/post/add">new</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/post">post</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
-                    </ul>
-                    {% endif %}
                 </div>
             </div>
         </nav>
 
         <main class="container py-4">
-            <!-- Flask flash alert -->
+            <!-- Bootstrap alert for Flask flash messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -90,7 +77,7 @@
                 {% endif %}
             {% endwith %}
 
-            <!-- Javascript alert  -->
+            <!-- Bootstrap alert for javascript messages -->
             <div class="d-flex justify-content-center">
                 <div class="alert d-none" role="alert"></div>
             </div>

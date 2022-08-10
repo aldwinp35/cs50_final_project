@@ -204,6 +204,35 @@ body {
     /* justify-content: space-around; */
 }
 
+/* ROUTE: ACCOUNT */
+
+.list-group-item div p {
+    display: inline-block;
+    margin: 0;
+}
+
+.list-group-item div p:first-child {
+    width: 130px;
+    font-weight: 600;
+}
+
+.edit-account-form input {
+    max-width: 170px;
+    width: auto;
+    border: unset;
+}
+
+@media (max-width: 430px)
+{
+    .list-group-item div p:first-child {
+        width: 90px;
+    }
+
+    .edit-account-form input {
+        max-width: 130px;
+    }
+}
+
 /* FOOTER */
 footer {
     z-index: 100;

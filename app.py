@@ -70,13 +70,6 @@ scheduler.start()
 # ROUTES
 # ------------------------
 
-# Render home page
-@app.route("/", methods=["GET"])
-@login_required
-def index():
-    return render_template("home/index.html")
-
-
 # Render login page (Login with facebook)
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -142,11 +135,22 @@ def login():
             return render_template("login/index.html", fb=fb)
 
 
-# Render post page, update posts by changing its order (drag and drop using sortable.js in client side)
-@app.route("/post", methods=["GET", "POST"])
-@csrf.exempt
+@app.route("/logout")
+def logout():
+    """Log user out"""
+
+    # Forget any user_id
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
+
+
+# Render home page, update posts by changing its order (drag and drop using sortable.js in client side)
+@app.route("/", methods=["GET", "POST"])
 @login_required
-def post():
+@csrf.exempt
+def index():
 
     if request.method == "POST":
 
@@ -216,7 +220,7 @@ def post():
             p.date = p.date.strftime("%b %d, %I:%M %p")
 
         # Return page
-        return render_template("post/index.html", posts=posts)
+        return render_template("home/index.html", posts=posts)
 
 
 # Render post/add page, add new post
@@ -344,7 +348,7 @@ def edit(post_id):
             scheduler.add_job(publish_post, args=[post.user_id], trigger="date", run_date=date, id=job_id)
 
         flash("Post updated", "info")
-        return redirect("/post")
+        return redirect("/")
 
     else:
         # Get post from database
@@ -388,7 +392,7 @@ def remove(post_id):
     db.session.commit()
 
     flash("Post deleted", "info")
-    return redirect("/post")
+    return redirect("/")
 
 
 # Publish post
@@ -415,13 +419,14 @@ def publish(post_id):
 
 @app.route("/account", methods=["GET", "POST"])
 @login_required
+@csrf.exempt
 def account():
 
     if request.method == "POST":
+        user_id = session.get("user_id")
 
         # Update user email
         if request.form.get("email"):
-
             # Validate email
             valid_email = re.search("[a-z\d]+\@[a-z\d]+\.com", request.form.get("email"))
             if not valid_email:
@@ -429,15 +434,22 @@ def account():
 
             # Update user email
             email = valid_email.group()
-            user = User.query.filter(User.id == session.get("user_id")).first()
-            user.email = email
+            user = User.query.filter(User.id == user_id).first()
+            user.email = email.lower()
             db.session.commit()
 
         # Update user name
         if request.form.get("name"):
             name = request.form.get("name")
-            user = User.query.filter(User.id == session.get("user_id")).first()
-            user.name = name
+            user = User.query.filter(User.id == user_id).first()
+            user.name = name.lower()
+            db.session.commit()
+
+        # Update username
+        if request.form.get("username"):
+            username = request.form.get("username")
+            user = User.query.filter(User.id == user_id).first()
+            user.username = username.lower()
             db.session.commit()
 
         # Redirect to account page
@@ -445,8 +457,10 @@ def account():
 
      # GET: Render account page
     else:
-        user = User.query.filter(User.id == session.get("user_id")).first()
-        return render_template("account.html", user=user)
+        user_id = session.get("user_id")
+        user = User.query.filter(User.id == user_id).first()
+        user.name = user.name.title()
+        return render_template("account/index.html", user=user)
 
 
 # Serve image to view (<img src="...")

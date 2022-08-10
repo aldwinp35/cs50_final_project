@@ -5,8 +5,13 @@
 {% endblock %}
 
 {% block main %}
+    <div class="row text-center">
+        <div class="col" style="margin-top: 200px;">
+            <h1 class="display-4">{{ error_detail["code"] }} | {{ error_detail["title"] }}</h1>
+            <p style="font-size: 20px; font-weight: lighter;">{{ error_detail["msg"] }}</p>
+            <p><a style="text-decoration: none;" href="/">Go Home</a></p>
+        </div>
+    </div>
 
-    {{ error_detail["code"] }}
-    {{ error_detail["msg"] }}
 
 {% endblock %}

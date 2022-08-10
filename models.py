@@ -6,7 +6,7 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
     name = db.Column(db.String(80), nullable=True)
-    username = db.Column(db.String(80), unique=True, nullable=True)
+    username = db.Column(db.String(80), nullable=True)
     email = db.Column(db.String(200), unique=True, nullable=True)
     ig_account_id = db.Column(db.String(30), unique=True, nullable=False, index=True)
     access_token = db.Column(db.Text, unique=True, nullable=False)

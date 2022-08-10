@@ -5,13 +5,41 @@ Home
 {% endblock %}
 
 {% block main %}
-<div class="row">
+
+<div class="row mb-5">
     <div class="col-md-12">
-        home page
+
+        <h4 class="text-center mb-4">Scheduled Post</h4>
+
+        <!-- Position fixed -->
+        <a class="add-new-post" href="/post/add">
+            <i class="bi bi-plus"></i>
+        </a>
+
+        {% if posts %}
+            <div id="post-section">
+                {% for post in posts %}
+                    <div class="post-box">
+                        <div class="rounded" style="background-image: url({{url_for('send_file', filename=post['filename'])}})"></div>
+                        <input type="hidden" id="post-id" value="{{ post['id'] }}">
+                        <p class="image-text m-0">{{ post['date'] }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+        <div class="d-flex justify-content-center">
+            <div class="rounded text-center no-post-scheduled">There are no posts scheduled</div>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<script>
+<!-- https://github.com/SortableJS/Sortable v1.15.0 -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
-</script>
+<!-- https://github.com/john-doherty/long-press-event -->
+<script src="{{ url_for('static', filename='js/long-press-event.min.js') }}"></script>
+
+<!-- Page scripts -->
+<script src="{{ url_for('static', filename='js/home-page.js') }}"></script>
 {% endblock %}
