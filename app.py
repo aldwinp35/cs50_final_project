@@ -367,7 +367,7 @@ def remove(post_id):
     try:
         os.unlink(os.path.join(resource_path, filename))
     except OSError as e:
-        raise
+        pass
 
     # Remove job_store
     job_id = str(post.id)
