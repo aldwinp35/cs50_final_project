@@ -4,11 +4,12 @@ import uuid
 import errno
 import requests
 import urllib.parse
-from datetime import datetime
 from dotenv import load_dotenv
 from flask_session import Session
-from werkzeug.utils import secure_filename
 from models import db, User, Post
+from datetime import datetime, timedelta
+from werkzeug.utils import secure_filename
+from flask_wtf.csrf import CSRFProtect
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -25,10 +26,12 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config['SECRET_KEY'] = os.urandom(32)
 app.config["UPLOAD_FOLDER_RELATIVE"] = "uploads"
 app.config["UPLOAD_FOLDER_ABSOLUTE"] = os.path.join(app.root_path, "uploads")
 
 Session(app)
+csrf = CSRFProtect(app)
 
 if os.environ.get("FLASK_ENV") == "development":
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tmp/ospost.db"
@@ -141,6 +144,7 @@ def login():
 
 # Render post page, update posts by changing its order (drag and drop using sortable.js in client side)
 @app.route("/post", methods=["GET", "POST"])
+@csrf.exempt
 @login_required
 def post():
 
@@ -233,6 +237,9 @@ def add():
         date = datetime.fromisoformat(date)
         if date < datetime.now():
             return jsonify({"ok": False, "msg": "Date must be in the future!"})
+        elif date > (datetime.now() + timedelta(days=59)):
+            return jsonify({"ok": False, "msg": "Date must be less than 59 days!"})
+
 
         # Clear HTML tags. Check for more options: https://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
         caption = re.sub("<[^<]+?>", "", caption)
@@ -314,6 +321,8 @@ def edit(post_id):
         date = datetime.fromisoformat(date)
         if date < datetime.now():
             return jsonify({"ok": False, "msg": "Date must be in the future!"})
+        elif date > (datetime.now() + timedelta(days=59)):
+            return jsonify({"ok": False, "msg": "Date must be less than 59 days!"})
 
         # Retrieve post from database
         post = Post.query.filter(Post.id == post_id).first()
@@ -330,9 +339,9 @@ def edit(post_id):
         job_id = str(post.id)
         job = scheduler.get_job(job_id)
         if job != None:
-            scheduler.reschedule_job(id=job_id, trigger="date", run_date=date)
+            scheduler.reschedule_job(job_id, trigger="date", run_date=date)
         else:
-            scheduler.add_job(publish_post, args=[session.get("user_id")], trigger="date", run_date=date, id=job_id)
+            scheduler.add_job(publish_post, args=[post.user_id], trigger="date", run_date=date, id=job_id)
 
         flash("Post updated", "info")
         return redirect("/post")
@@ -363,9 +372,8 @@ def remove(post_id):
 
     # Delete file
     resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], session.get("ig_account_id"))
-    filename = post.filename
     try:
-        os.unlink(os.path.join(resource_path, filename))
+        os.unlink(os.path.join(resource_path, post.filename))
     except OSError as e:
         pass
 
@@ -387,8 +395,22 @@ def remove(post_id):
 @app.route("/post/publish/<post_id>", methods=["POST"])
 @login_required
 def publish(post_id):
-    # publish post
-    return render_template("post/publish")
+
+    if request.method == "POST":
+        # Retrieve post form database
+        post = Post.query.filter(Post.id == post_id).first()
+
+        if post == None:
+            return error_template("Not found", "Resource not found", 404)
+
+        # Remove job
+        job_id = str(post.id)
+        job = scheduler.get_job(job_id)
+        if job != None:
+            job.remove()
+
+        # Call publish
+        publish_post(post.user_id)
 
 
 @app.route("/account", methods=["GET", "POST"])

@@ -152,9 +152,13 @@ def publish_post(user_id):
 
         if ig_media_id:
             print("media was published")
-            # Delete media from static
             try:
+                # Delete media from static
                 os.unlink(os.path.join(dst, post.filename))
+
+                # Delete media from upload directory
+                resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], user.ig_account_id)
+                os.unlink(os.path.join(resource_path, post.filename))
             except OSError as e:
                 return None
 

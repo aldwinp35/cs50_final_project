@@ -1,6 +1,17 @@
+# main
 __pycache__/*
 .vscode/*
 flask_session/*
 uploads/*
 tmp/*
 .env
+
+# files
+#js
+static/js/carousel.js
+static/js/cropper.js
+static/js/Sortable.min.js
+
+#css
+static/css/carousel.css
+static/css/cropper.css

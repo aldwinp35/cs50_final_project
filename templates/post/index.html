@@ -34,10 +34,12 @@ Post
     </div>
 </div>
 
-<!-- Scripts -->
-<!-- https://github.com/SortableJS/Sortable -->
-<script src="{{ url_for('static', filename='js/Sortable.min.js') }}"></script>
+<!-- https://github.com/SortableJS/Sortable v1.15.0 -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
 <!-- https://github.com/john-doherty/long-press-event -->
 <script src="{{ url_for('static', filename='js/long-press-event.min.js') }}"></script>
+
+<!-- Page scripts -->
 <script src="{{ url_for('static', filename='js/post-page.js') }}"></script>
 {% endblock %}

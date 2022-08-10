@@ -195,6 +195,7 @@ class CropImage
                 this.saveCropBtn.classList.remove('d-none');
                 this.cropper.crop();
                 this.aspectRatioButtons();
+                document.querySelector('.ratio_square').parentElement.click();
             }
         }
     }

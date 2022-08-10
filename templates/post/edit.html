@@ -19,6 +19,7 @@ Edit post
         </div>
         <form action="/post/edit/{{ post['id'] }}" method="post">
             <!-- antiforgery token -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <input id="post_id" type="hidden" value="{{ post['id'] }}">
             <!--
             <div class="caption rounded mb-3 position-relative">

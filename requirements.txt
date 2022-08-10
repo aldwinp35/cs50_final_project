@@ -4,6 +4,7 @@ Flask-Session
 requests
 datetime
 apscheduler
+flask-wtf
 python-dotenv
 gunicorn
 psycopg2

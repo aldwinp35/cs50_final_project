@@ -50,7 +50,8 @@ function statusChangeCallback(response)
                             response.ig_id = igAccountIdResponse['instagram_business_account'].id;
 
                             // Send response
-                            const loginResponse = await request('/login', 'POST', response);
+                            const csrf_token = document.getElementById('csrf_token');
+                            const loginResponse = await request('/login', 'POST', response, csrf_token.value);
                             if (loginResponse.ok) location.href = location.origin;
                         }
                     }); // igAccountIdResponse

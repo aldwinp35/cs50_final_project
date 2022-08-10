@@ -1,27 +1,27 @@
 // Validate text/email inputs using regular expression
-function validateInput(inputEl) 
+function validateInput(inputEl)
 {
     // Validate email
-    if (inputEl.type === "email") 
+    if (inputEl.type === "email")
     {
 
         const valid = inputEl.value.match(/[a-z\d]+\@[a-z\d]+\.com/g);
-        if (valid === null || inputEl.value === "") 
+        if (valid === null || inputEl.value === "")
         {
             return false;
         }
     }
 
-    if (inputEl.type === "number") 
+    if (inputEl.type === "number")
     {
-        if (isNaN(inputEl.value) || inputEl.value < 1) 
+        if (isNaN(inputEl.value) || inputEl.value < 1)
         {
             return false;
         }
     }
 
     // Validate text
-    if (inputEl.value === "") 
+    if (inputEl.value === "")
     {
         return false;
     }
@@ -29,18 +29,18 @@ function validateInput(inputEl)
     return true;
 }
 
-function avoidOverSizeFile(files) 
+function avoidOverSizeFile(files)
 {
     let newFiles = [];
     const maxSize = 100 * 1024 * 1024; // 100MB
 
-    for (let i = 0; i < files.length; i++) 
+    for (let i = 0; i < files.length; i++)
     {
-        if (files[i].size <= maxSize) 
+        if (files[i].size <= maxSize)
         {
             newFiles.push(files[i]);
         }
-        else 
+        else
         {
             console.log("File size is too big. File avoided: " + files[i].name);
         }
@@ -49,18 +49,18 @@ function avoidOverSizeFile(files)
     return newFiles;
 }
 
-function validateInputFile(files) 
+function validateInputFile(files)
 {
 
-    if (files.length === 0) 
+    if (files.length === 0)
     {
         console.log("No files selected");
         return false;
     }
 
-    for (let i = 0; i < files.length; i++) 
+    for (let i = 0; i < files.length; i++)
     {
-        if (files[i].type !== "image/jpg" && files[i].type !== "image/jpeg") 
+        if (files[i].type !== "image/jpg" && files[i].type !== "image/jpeg")
         {
             console.log("File type not supported");
             return false;
@@ -71,7 +71,7 @@ function validateInputFile(files)
 }
 
 // Add a red border around input element for 2 second
-function showInputError(inputEl) 
+function showInputError(inputEl)
 {
     inputEl.classList.add('input-text-error');
 
@@ -82,50 +82,55 @@ function showInputError(inputEl)
 }
 
 // Make http requests with fetch
-async function request(url, method, data = null) 
+async function request(url, method, data=null, csrf_token=null)
 {
-    if (method.toUpperCase() === "POST") 
+    if (method.toUpperCase() === "POST")
     {
         // POST request
-        try 
+        const headers = {'Content-Type': 'application/json'}
+
+        if (csrf_token !== null)
+        {
+            headers['X-CSRFToken'] = csrf_token
+        }
+
+        try
         {
             const req = await fetch(url, {
                 method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers,
                 body: JSON.stringify(data)
             });
 
             return req.json();
         }
-        catch (error) 
+        catch (error)
         {
             console.error('Error:', error);
         }
-    } 
-    else 
+    }
+    else
     {
         // GET request
-        try 
+        try
         {
             const req = await fetch(url);
             return req.json();
         }
-        catch (error) 
+        catch (error)
         {
             console.error('Error', error);
         }
     }
 }
 
-/* 
+/*
 Parse string Nodes to HTML element
 
 https://developer.mozilla.org/en-US/docs/Web/API/Range/createContextualFragment
 https://developer.mozilla.org/en-US/docs/Web/API/Document/createRange
 */
-function parseDom(html) 
+function parseDom(html)
 {
     const range = document.createRange();
     const nodes = range.createContextualFragment(html);

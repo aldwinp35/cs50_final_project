@@ -6,14 +6,17 @@ Add post
 
 {% block main %}
 
-<!-- Styles -->
-<link href="{{ url_for('static', filename='css/cropper.css') }}" rel="stylesheet">
+<!-- https://github.com/fengyuanchen/cropperjs v1.5.12-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" integrity="sha512-0SPWAwpC/17yYyZ/4HSllgaK7/gg9OlVozq8K7rf3J8LvCjYEEIfzzpnA2/SSjpGIunCSD18r3UhvDcu/xncWA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Styles for class that use cropperjs -->
 <link href="{{ url_for('static', filename='css/cropImage.css') }}" rel="stylesheet">
 
 <div class="row justify-content-center mb-5">
     <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4 col-section">
         <h4 class="text-center mb-4">New Post</h4>
         <form id="formUpload" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="accordion accordion-flush" id="accordionFlushExample">
                 <div class="accordion-item">
                     <h2 class="accordion-header mb-2" id="flush-headingOne">
@@ -29,8 +32,7 @@ Add post
                                     <i class="bi bi-camera" style="font-size: 30px;"></i><br>
                                     <p class="m-0">Select media</p>
                                 </span>
-                                <input class="d-none" type="file" id="add-media-files" name="add-media-files"
-                                    multiple accept="image/jpg, image/jpeg">
+                                <input class="d-none" type="file" id="add-media-files" name="add-media-files" accept="image/jpg, image/jpeg">
                             </label>
                         </div>
                         <div class="upload-preview rounded">
@@ -56,11 +58,13 @@ Add post
     </div>
 </div>
 
-<!-- Scripts -->
-<!-- https://github.com/fengyuanchen/cropperjs -->
-<script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
+<!-- https://github.com/fengyuanchen/cropperjs v1.5.12-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js" integrity="sha512-ooSWpxJsiXe6t4+PPjCgYmVfr1NS5QXJACcR/FPpsdm6kqG1FmQ2SVyg2RXeVuCRBLr0lWHnWJP6Zs1Efvxzww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <!-- A class that use cropperjs -->
 <script src="{{ url_for('static', filename='js/cropImage.js') }}"></script>
+
+<!-- Page script -->
 <script src="{{ url_for('static', filename='js/post-add-page.js') }}"></script>
 
 {% endblock %}

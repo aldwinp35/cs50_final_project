@@ -2,9 +2,9 @@ const postId = document.getElementById('post_id');
 const captionSection = document.querySelector('.caption-section');
 const captionIcon = captionSection.querySelector('i');
 const textarea = captionSection.querySelector('textarea');
-const editPostNow = document.querySelector('.edit-post-now');
-const editSaveChange = document.querySelector('.edit-save-change');
-const editRemovePost = document.querySelector('.edit-remove-post');
+const btnPostNow = document.querySelector('.edit-post-now');
+const btnSaveChange = document.querySelector('.edit-save-change');
+const btnRemovePost = document.querySelector('.edit-remove-post');
 const date = document.getElementById('date');
 const form = document.querySelector('form');
 
@@ -34,9 +34,9 @@ captionIcon.addEventListener('click', e => {
     textarea.focus();
 });
 
-editPostNow.addEventListener('click', submitFormHandler);
-editSaveChange.addEventListener('click', submitFormHandler);
-editRemovePost.addEventListener('click', submitFormHandler);
+btnPostNow.addEventListener('click', submitFormHandler);
+btnSaveChange.addEventListener('click', submitFormHandler);
+btnRemovePost.addEventListener('click', submitFormHandler);
 
 async function submitFormHandler(e)
 {
@@ -49,13 +49,11 @@ async function submitFormHandler(e)
         return;
     }
 
-    if (e.target == editPostNow)
+    if (e.target == btnPostNow)
     {
-        console.log('Publish on instagram\n Not implemented yet');
-        // form.action = `${location.origin}/post/publish/${postId.value}`;
-        return;
+        form.action = `${location.origin}/post/publish/${postId.value}`;
     }
-    else if (e.target == editRemovePost)
+    else if (e.target == btnRemovePost)
     {
         form.action = `${location.origin}/post/remove/${postId.value}`;
     }

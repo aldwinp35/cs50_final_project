@@ -8,14 +8,8 @@ const btnSendForm = document.querySelector('#btnSendForm');
 const inputDate = document.querySelector('#date');
 const inputCaption = document.querySelector('#caption');
 
-// Set min date for inputDate
-// const minDateObject = new Date();
-// minDateObject.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
-// const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
-// inputDate.setAttribute('min', minDate);
-
 // Remove any file reference from memory before reload
- window.addEventListener('beforeunload', e => {
+window.addEventListener('beforeunload', e => {
     if (files.length > 0) {
         for (let f of files) {
             URL.revokeObjectURL(f.url);
@@ -26,6 +20,24 @@ const inputCaption = document.querySelector('#caption');
 window.addEventListener('DOMContentLoaded', e => {
     flushHeadingOne.click();
 });
+
+// Popover instruction for date
+const options = {
+    content: 'Date to publish on instagram. No more than 59 days',
+    placement: 'top',
+}
+const popover = new bootstrap.Popover(inputDate, options)
+
+// Hide popover on focusout
+inputDate.addEventListener('focusout', () => {
+    popover.hide();
+});
+
+// Set min date for inputDate
+// const minDateObject = new Date();
+// minDateObject.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
+// const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
+// inputDate.setAttribute('min', minDate);
 
 add_media_files.addEventListener('change', media_files_handler);
 async function media_files_handler(e) {
@@ -65,7 +77,6 @@ btnSendForm.addEventListener('click', async (e) => {
 
     // References: https://developer.mozilla.org/en-US/docs/Web/API/FormData
     const fd = new FormData();
-
     fd.append('date', inputDate.value);
     fd.append('caption', inputCaption.value);
 
@@ -77,8 +88,12 @@ btnSendForm.addEventListener('click', async (e) => {
 
     // Send request
     try {
+        const csrf_token = document.getElementById('csrf_token');
         const req = await fetch('/post/add', {
             method: 'POST',
+            headers: {
+                'X-CSRFToken': csrf_token.value,
+            },
             body: fd
         });
 
