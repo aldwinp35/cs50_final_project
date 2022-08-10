@@ -105,7 +105,10 @@ def publish_post(user_id):
             os.mkdir(dst)
 
         # Move img to tmp/
-        copy2(src, dst)
+        try:
+            copy2(src, dst)
+        except Exception as e:
+            return None
 
         # Image url
         image_url = os.getenv("APP_URL") + os.path.join(dst, post.filename)
@@ -150,7 +153,10 @@ def publish_post(user_id):
         if ig_media_id:
             print("media was published")
             # Delete media from static
-            os.unlink(os.path.join(dst, post.filename))
+            try:
+                os.unlink(os.path.join(dst, post.filename))
+            except OSError as e:
+                return None
 
             # Delete post form database
             db.session.delete(post)
