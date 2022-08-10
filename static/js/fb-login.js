@@ -50,7 +50,7 @@ function statusChangeCallback(response)
                             response.ig_id = igAccountIdResponse['instagram_business_account'].id;
 
                             // Send response
-                            // const csrf_token = document.getElementById('csrf_token');
+                            const csrf_token = document.getElementById('csrf_token');
                             const loginResponse = await request('/login', 'POST', response);
                             if (loginResponse.ok) location.href = location.origin;
                         }
