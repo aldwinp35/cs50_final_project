@@ -7,13 +7,16 @@ tmp/*
 .env
 
 # files
-#js
-static/**/carousel.js
-# static/js/carousel.js
+*.js
+!static/js/long-press-event.min.js
+!static/js/cropImage.js
+!static/js/fb-login.js
+!static/js/functions.js
+!static/js/post-add-page.js
+!static/js/post-edit-page.js
+!static/js/post-page.js
 
-# static/js/cropper.js
-# static/js/Sortable.min.js
 
-# #css
+#css
 # static/css/carousel.css
 # static/css/cropper.css
