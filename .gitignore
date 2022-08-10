@@ -4,5 +4,6 @@ __pycache__/*
 flask_session/*
 uploads/*
 tmp/*
+static/tmp/*
 .env
 
