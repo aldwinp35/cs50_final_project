@@ -82,23 +82,24 @@ function showInputError(inputEl)
 }
 
 // Make http requests with fetch
-async function request(url, method, data=null, csrf_token=null)
+async function request(url, method, data=null)
 {
     if (method.toUpperCase() === "POST")
     {
         // POST request
+        const csrf_token = document.getElementById("csrf_token");
         const headers = {'Content-Type': 'application/json'}
 
         if (csrf_token !== null)
         {
-            headers['X-CSRFToken'] = csrf_token
+            headers['X-CSRFToken'] = csrf_token.value
         }
 
         try
         {
             const req = await fetch(url, {
                 method,
-                headers,
+                headers: headers,
                 body: JSON.stringify(data)
             });
 
