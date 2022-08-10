@@ -9,9 +9,9 @@ const date = document.getElementById('date');
 const form = document.querySelector('form');
 
 // Set min date for inputDate
-const minDateObject = new Date();
-const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
-date.setAttribute('min', minDate);
+// const minDateObject = new Date();
+// const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
+// date.setAttribute('min', minDate);
 
 
 captionIcon.addEventListener('click', e => {

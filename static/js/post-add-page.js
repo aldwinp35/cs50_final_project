@@ -9,9 +9,10 @@ const inputDate = document.querySelector('#date');
 const inputCaption = document.querySelector('#caption');
 
 // Set min date for inputDate
-const minDateObject = new Date();
-const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
-inputDate.setAttribute('min', minDate);
+// const minDateObject = new Date();
+// minDateObject.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
+// const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
+// inputDate.setAttribute('min', minDate);
 
 // Remove any file reference from memory before reload
  window.addEventListener('beforeunload', e => {
@@ -102,4 +103,4 @@ btnSendForm.addEventListener('click', async (e) => {
     {
         console.error('Error:', error)
     }
-});   
+});
