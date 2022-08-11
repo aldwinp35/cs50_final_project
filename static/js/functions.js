@@ -100,7 +100,6 @@ async function request(url, method, data=null)
         {
             const req = await fetch(url, {
                 method,
-                credentials: "include",
                 headers: headers,
                 body: JSON.stringify(data)
             });
