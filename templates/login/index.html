@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="{{ csrf_token() }}" name="csrf-token">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     <title>Ospost | Log In with facebook</title>
@@ -121,7 +120,7 @@
 
     <input type="hidden" id="app_id" value="{{ fb.app_id }}">
     <input type="hidden" id="app_version" value="{{ fb.version }}">
-    <!-- <input type="hidden" id="csrf_token" value="{{ csrf_token() }}"> -->
+    <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
 
     <script src="{{ url_for('static', filename='js/functions.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fb-login.js') }}"></script>

@@ -87,8 +87,7 @@ async function request(url, method, data=null)
     if (method.toUpperCase() === "POST")
     {
         // POST request
-        // const csrf_token = document.getElementById("csrf_token");
-        const csrf_token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+        const csrf_token = document.getElementById("csrf_token");
         const headers = {'Content-Type': 'application/json'}
 
         if (csrf_token !== null)
