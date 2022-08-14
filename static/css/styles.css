@@ -48,7 +48,7 @@ body {
     bottom: 50px;
     right: 15px;
     z-index: 1;
-    border-radius: 4px;
+    border-radius: 10px;
     text-decoration: none;
     color: #333;
     background-color: #eee;
@@ -56,8 +56,8 @@ body {
 }
 
 .add-new-post i {
-    font-size: 40px;
-    padding: 5px 10px;
+    font-size: 30px;
+    padding: 5px 8px;
     pointer-events: none;
 }
 

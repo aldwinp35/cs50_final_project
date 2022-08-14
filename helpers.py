@@ -4,7 +4,6 @@ import urllib.parse
 from time import sleep
 from shutil import copy2
 from functools import wraps
-from datetime import datetime
 from flask import redirect, render_template, session
 
 
@@ -80,20 +79,19 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def publish_post(user_id):
+def publish_post(post_id):
 
     from models import db, Post, User
     from app import app
     with app.test_request_context():
-        user = User.query.filter(User.id == user_id).first()
-        if not user:
-            print("No user was found")
-            return None
-
-        now = datetime(datetime.now().year, datetime.now().month, datetime.now().day, datetime.now().hour, datetime.now().minute)
-        post = Post.query.filter(Post.user_id == user.id, Post.date == now).first()
+        post = Post.query.filter(Post.id == post_id).first()
         if not post:
             print("No post was found")
+            return None
+
+        user = User.query.filter(User.id == post.user_id).first()
+        if not user:
+            print("No user was found")
             return None
 
         # Move image to static/tmp/ directory
@@ -165,6 +163,10 @@ def publish_post(user_id):
             # Delete post form database
             db.session.delete(post)
             db.session.commit()
+
+            return True
         else:
             print("Fail to post media")
             # Send an email to user
+            
+            return False

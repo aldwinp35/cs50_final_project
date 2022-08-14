@@ -8,22 +8,19 @@ const btnSendForm = document.querySelector('#btnSendForm');
 const inputDate = document.querySelector('#date');
 const inputCaption = document.querySelector('#caption');
 
-// Remove any file reference from memory before reload
+// Remove any file reference before reload
 window.addEventListener('beforeunload', e => {
-    if (files.length > 0) {
-        for (let f of files) {
-            URL.revokeObjectURL(f.url);
-        }
-    }
+    removeBlob();
 });
 
+// Click to show file first
 window.addEventListener('DOMContentLoaded', e => {
     flushHeadingOne.click();
 });
 
 // Popover instruction for date
 const options = {
-    content: 'Date to publish on instagram. No more than 59 days',
+    content: 'Date to publish on instagram. No longer than 50 days',
     placement: 'top',
 }
 const popover = new bootstrap.Popover(inputDate, options)
@@ -39,11 +36,11 @@ inputDate.addEventListener('focusout', () => {
 // const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
 // inputDate.setAttribute('min', minDate);
 
-add_media_files.addEventListener('change', media_files_handler);
-async function media_files_handler(e) {
-
-    // Avoid files over 100MB
-    files = avoidOverSizeFile(e.target.files);
+add_media_files.addEventListener('change', mediaFilesHandler);
+async function mediaFilesHandler(e)
+{
+    // Get file
+    files.push(e.target.files[0]);
 
     // Validate files type (jpg, jpeg) are allowed
     if (!validateInputFile(files))
@@ -68,7 +65,17 @@ async function media_files_handler(e) {
 btnSendForm.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    // Validate
+    // Validate file size
+    const maxSize = 8 * 1000 * 1000;
+    if (files[0].size > maxSize)
+    {
+        alert.classList.remove('d-none');
+        alert.classList.add('alert-danger');
+        alert.textContent = "File is too large";
+        return;
+    }
+
+    // Validate input date
     if (!validateInput(inputDate))
     {
         showInputError(inputDate);
@@ -88,12 +95,8 @@ btnSendForm.addEventListener('click', async (e) => {
 
     // Send request
     try {
-        const csrf_token = document.getElementById('csrf_token');
         const req = await fetch('/post/add', {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': csrf_token.value,
-            },
             body: fd
         });
 
@@ -101,6 +104,9 @@ btnSendForm.addEventListener('click', async (e) => {
 
         if (res.ok)
         {
+            // Remove file reference
+            removeBlob();
+
             // Redirect to home page
             location.href = location.origin;
         }
@@ -119,3 +125,13 @@ btnSendForm.addEventListener('click', async (e) => {
         console.error('Error:', error)
     }
 });
+
+// Remove blob reference from memory
+function removeBlob()
+{
+    if (files.length > 0) {
+        for (let f of files) {
+            URL.revokeObjectURL(f.url);
+        }
+    }
+}

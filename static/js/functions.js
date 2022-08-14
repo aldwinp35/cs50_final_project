@@ -29,10 +29,9 @@ function validateInput(inputEl)
     return true;
 }
 
-function avoidOverSizeFile(files)
+function avoidOverSizeFile(files, maxSize)
 {
     let newFiles = [];
-    const maxSize = 100 * 1024 * 1024; // 100MB
 
     for (let i = 0; i < files.length; i++)
     {
@@ -54,7 +53,10 @@ function validateInputFile(files)
 
     if (files.length === 0)
     {
-        console.log("No files selected");
+        alert.classList.remove('d-none');
+        alert.classList.add('alert-danger');
+        alert.textContent = "File is required";
+
         return false;
     }
 
@@ -62,7 +64,9 @@ function validateInputFile(files)
     {
         if (files[i].type !== "image/jpg" && files[i].type !== "image/jpeg")
         {
-            console.log("File type not supported");
+            alert.classList.remove('d-none');
+            alert.classList.add('alert-danger');
+            alert.textContent = "File type not supported";
             return false;
         }
     }
@@ -87,13 +91,7 @@ async function request(url, method, data=null)
     if (method.toUpperCase() === "POST")
     {
         // POST request
-        const csrf_token = document.getElementById("csrf_token");
         const headers = {'Content-Type': 'application/json'}
-
-        if (csrf_token !== null)
-        {
-            headers['X-CSRFToken'] = csrf_token.value
-        }
 
         try
         {

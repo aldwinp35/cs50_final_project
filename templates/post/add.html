@@ -16,7 +16,6 @@ Add post
     <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4 col-section">
         <h4 class="text-center mb-4">New Post</h4>
         <form id="formUpload" method="post" enctype="multipart/form-data">
-            <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="accordion accordion-flush" id="accordionFlushExample">
                 <div class="accordion-item">
                     <h2 class="accordion-header mb-2" id="flush-headingOne">
@@ -30,7 +29,9 @@ Add post
                                 for="add-media-files">
                                 <span class="text-center">
                                     <i class="bi bi-camera" style="font-size: 30px;"></i><br>
-                                    <p class="m-0">Select media</p>
+                                    <!-- <p class="m-0">Select media</p> -->
+                                    <p class="m-0">Format: JPEG</p>
+                                    <p class="m-0">File size: 8 MB maximum.</p>
                                 </span>
                                 <input class="d-none" type="file" id="add-media-files" name="add-media-files" accept="image/jpg, image/jpeg">
                             </label>
