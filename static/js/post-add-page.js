@@ -25,9 +25,27 @@ const options = {
 }
 const popover = new bootstrap.Popover(inputDate, options)
 
-// Hide popover on focusout
-inputDate.addEventListener('focusout', () => {
+// Support for mobile browser: https://stackoverflow.com/questions/20321202/not-showing-placeholder-for-input-type-date-field
+// Make input readonly when input:type=text, not show keyboard on ios
+inputDate.setAttribute('readonly', true);
+inputDate.style.backgroundColor = '#fff';
+
+// Change input to datetime-local
+inputDate.addEventListener('focus', () => {
+    inputDate.type = 'datetime-local';
+    inputDate.removeAttribute('readonly');
+});
+
+inputDate.addEventListener('blur', () => {
+    // Hide popover
     popover.hide();
+
+    // If input is empty, change it to text and readonly
+    if (inputDate.value == '')
+    {
+        inputDate.type = 'text';
+        inputDate.setAttribute('readonly', true);
+    }
 });
 
 // Set min, max date for inputDate
