@@ -18,15 +18,8 @@ window.addEventListener('DOMContentLoaded', e => {
     flushHeadingOne.click();
 });
 
-// Popover instruction for date
-const options = {
-    content: 'Date to publish on instagram. No longer than 50 days',
-    placement: 'top',
-}
-const popover = new bootstrap.Popover(inputDate, options)
-
 // Support for mobile browser: https://stackoverflow.com/questions/20321202/not-showing-placeholder-for-input-type-date-field
-// Make input readonly when input:type=text, not show keyboard on ios
+// Make input readonly when input:type=text, don't show keyboard on IOS
 inputDate.setAttribute('readonly', true);
 inputDate.style.backgroundColor = '#fff';
 
@@ -39,8 +32,6 @@ inputDate.addEventListener('focus', () => {
 
 // If input is empty, change it to text and readonly
 inputDate.addEventListener('blur', () => {
-    // Hide popover
-    popover.hide();
 
     if (inputDate.value == '')
     {
