@@ -18,7 +18,7 @@ def login_required(f):
     """
     Decorate routes to require login.
 
-    http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
+    https://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -168,5 +168,5 @@ def publish_post(post_id):
         else:
             print("Fail to post media")
             # Send an email to user
-            
+
             return False

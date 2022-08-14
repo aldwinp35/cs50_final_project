@@ -465,7 +465,8 @@ def account():
         user_id = session.get("user_id")
         user = User.query.filter(User.id == user_id).first()
         if user != None:
-            user.name = user.name.title()
+            if user.name != None:
+                user.name = user.name.title()
 
         return render_template("account/index.html", user=user)
 
