@@ -25,8 +25,8 @@ inputDate.style.backgroundColor = '#fff';
 
 // Change input to datetime-local
 inputDate.addEventListener('focus', () => {
-    inputDate.type = 'datetime-local';
     inputDate.removeAttribute('readonly');
+    inputDate.type = 'datetime-local';
     inputDate.click();
 });
 
