@@ -23,7 +23,7 @@ const options = {
     content: 'Date to publish on instagram. No longer than 50 days',
     placement: 'top',
 }
-const popover = new bootstrap.Popover(inputDate, options)
+// const popover = new bootstrap.Popover(inputDate, options)
 
 // Support for mobile browser: https://stackoverflow.com/questions/20321202/not-showing-placeholder-for-input-type-date-field
 // Make input readonly when input:type=text, not show keyboard on ios
@@ -38,7 +38,7 @@ inputDate.addEventListener('focus', () => {
 
 inputDate.addEventListener('blur', () => {
     // Hide popover
-    popover.hide();
+    // popover.hide();
 
     // If input is empty, change it to text and readonly
     if (inputDate.value == '')
