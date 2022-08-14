@@ -38,6 +38,9 @@ if os.environ.get("FLASK_ENV") == "development":
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
+    # with app.app_context():
+    #     db.create_all()
+
     jobstores = {
         "default": SQLAlchemyJobStore(url="sqlite:///tmp/ospost.db", tablename="apscheduler_jobs"),
     }
@@ -354,7 +357,7 @@ def edit(post_id):
             scheduler.add_job(publish_post, args=[post.id], trigger="date", run_date=date, id=job_id)
 
         flash("Post updated", "info")
-        return redirect("/")
+        return jsonify({"ok": True})
 
     else:
         # Get post from database
@@ -420,7 +423,13 @@ def publish(post_id):
             job.remove()
 
         # Publish on instagram
-        publish_post(post.id)
+        is_posted = publish_post(post.id)
+        if is_posted:
+            flash("Media was published", "info")
+            return redirect("/")
+        else:
+            flash("Media could not be published", "danger")
+            return redirect("/")
 
 
 @app.route("/account", methods=["GET", "POST"])
@@ -454,7 +463,7 @@ def account():
         if request.form.get("username"):
             username = request.form.get("username")
             user = User.query.filter(User.id == user_id).first()
-            user.username = username.lower()
+            user.username = username.lower().replace(" ", "")
             db.session.commit()
 
         # Redirect to account page

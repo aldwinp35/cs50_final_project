@@ -1,19 +1,22 @@
+const alert = document.querySelector('.alert');
 const postId = document.getElementById('post_id');
 const captionSection = document.querySelector('.caption-section');
+const inputDate = document.getElementById('date');
+const inputCaption = captionSection.querySelector('textarea');
 const captionIcon = captionSection.querySelector('i');
-const textarea = captionSection.querySelector('textarea');
+const btnRemovePost = document.querySelector('.edit-remove-post');
 const btnPostNow = document.querySelector('.edit-post-now');
 const btnSaveChange = document.querySelector('.edit-save-change');
-const btnRemovePost = document.querySelector('.edit-remove-post');
-const date = document.getElementById('date');
 const form = document.querySelector('form');
 
-// Set min date for inputDate
-// const minDateObject = new Date();
-// const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
-// date.setAttribute('min', minDate);
+// Set min, max date for inputDate
+const date = new Date();
+const minDate = getIsoDate(date);
+const maxDate = getIsoDate(addDays(date, 50));
+inputDate.setAttribute('min', minDate);
+inputDate.setAttribute('max', maxDate);
 
-
+// Edit caption button
 captionIcon.addEventListener('click', e => {
 
     if (e.target.classList.contains('bi-x-lg'))
@@ -21,17 +24,17 @@ captionIcon.addEventListener('click', e => {
         e.target.classList.remove('bi-x-lg');
         e.target.classList.add('bi-pencil-fill');
 
-        textarea.classList.add('readonly-textarea');
-        textarea.setAttribute('readonly', '');
+        inputCaption.classList.add('readonly-textarea');
+        inputCaption.setAttribute('readonly', '');
         return;
     }
 
     e.target.classList.remove('bi-pencil-fill');
     e.target.classList.add('bi-x-lg');
 
-    textarea.classList.remove('readonly-textarea');
-    textarea.removeAttribute('readonly');
-    textarea.focus();
+    inputCaption.classList.remove('readonly-textarea');
+    inputCaption.removeAttribute('readonly');
+    inputCaption.focus();
 });
 
 btnPostNow.addEventListener('click', submitFormHandler);
@@ -43,20 +46,49 @@ async function submitFormHandler(e)
     e.preventDefault();
 
         // Validate input date
-    if (!validateInput(date))
+    if (!validateInput(inputDate))
     {
-        showInputError(date);
+        showInputError(inputDate);
         return;
     }
 
     if (e.target == btnPostNow)
     {
         form.action = `${location.origin}/post/publish/${postId.value}`;
+        form.submit();
     }
     else if (e.target == btnRemovePost)
     {
         form.action = `${location.origin}/post/remove/${postId.value}`;
+        form.submit();
     }
 
-    form.submit();
+    // Send by fetch request
+    // References: https://developer.mozilla.org/en-US/docs/Web/API/FormData
+    const formData = new FormData(form);
+
+    try {
+        const req = await fetch(`/post/edit/${postId.value}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const res = await req.json();
+
+        if (res.ok)
+        {
+            location.href = location.origin;
+        }
+        else
+        {
+            alert.classList.remove('d-none');
+            alert.classList.add('alert-danger');
+            alert.textContent =  res.msg;
+        }
+    }
+
+    catch (error)
+    {
+        console.error('Error:', error)
+    }
 }

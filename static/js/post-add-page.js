@@ -2,8 +2,8 @@ let files = [];
 const alert = document.querySelector('.alert');
 const flushHeadingOne = document.getElementById('flush-headingOne').children[0];
 const mediaFilesWrapper = document.querySelector('#media-files-wrapper');
-const add_media_files = document.querySelector('#add-media-files');
-const upload_preview = document.querySelector('.upload-preview');
+const addMediaFiles = document.querySelector('#add-media-files');
+const uploadPreview = document.querySelector('.upload-preview');
 const btnSendForm = document.querySelector('#btnSendForm');
 const inputDate = document.querySelector('#date');
 const inputCaption = document.querySelector('#caption');
@@ -30,13 +30,15 @@ inputDate.addEventListener('focusout', () => {
     popover.hide();
 });
 
-// Set min date for inputDate
-// const minDateObject = new Date();
-// minDateObject.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
-// const minDate = minDateObject.toISOString().substring(0, minDateObject.toISOString().lastIndexOf(":"))
-// inputDate.setAttribute('min', minDate);
+// Set min, max date for inputDate
+const date = new Date();
+const minDate = getIsoDate(date);
+const maxDate = getIsoDate(addDays(date, 50));
+inputDate.setAttribute('min', minDate);
+inputDate.setAttribute('max', maxDate);
 
-add_media_files.addEventListener('change', mediaFilesHandler);
+// Add file
+addMediaFiles.addEventListener('change', mediaFilesHandler);
 async function mediaFilesHandler(e)
 {
     // Get file
@@ -56,10 +58,10 @@ async function mediaFilesHandler(e)
         file.url = URL.createObjectURL(file);
     }
 
-    const cropImg = new CropImage(upload_preview, files);
+    const cropImg = new CropImage(uploadPreview, files);
     cropImg.display();
 
-} // input file: add_media_files handler
+} // input file: addMediaFiles handler
 
 // SEND DATA WITH POST REQUEST
 btnSendForm.addEventListener('click', async (e) => {
@@ -82,7 +84,6 @@ btnSendForm.addEventListener('click', async (e) => {
         return;
     }
 
-    // References: https://developer.mozilla.org/en-US/docs/Web/API/FormData
     const fd = new FormData();
     fd.append('date', inputDate.value);
     fd.append('caption', inputCaption.value);

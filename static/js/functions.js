@@ -29,25 +29,6 @@ function validateInput(inputEl)
     return true;
 }
 
-function avoidOverSizeFile(files, maxSize)
-{
-    let newFiles = [];
-
-    for (let i = 0; i < files.length; i++)
-    {
-        if (files[i].size <= maxSize)
-        {
-            newFiles.push(files[i]);
-        }
-        else
-        {
-            console.log("File size is too big. File avoided: " + files[i].name);
-        }
-    }
-
-    return newFiles;
-}
-
 function validateInputFile(files)
 {
 
@@ -134,4 +115,22 @@ function parseDom(html)
     const range = document.createRange();
     const nodes = range.createContextualFragment(html);
     return nodes;
+}
+
+function getIsoDate(date)
+{
+    return `
+        ${date.getFullYear()}-
+        ${String(date.getMonth() + 1).padStart(2, "0")}-
+        ${String(date.getDate()).padStart(2, "0")}T
+        ${String(date.getHours()).padStart(2, "0")}:
+        ${String(date.getMinutes()).padStart(2, "0")}
+    `.split(" ").join("").split("\n").join("");
+}
+
+// https://stackoverflow.com/questions/563406/how-to-add-days-to-date?answertab=scoredesc
+function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
 }
