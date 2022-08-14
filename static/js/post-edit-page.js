@@ -18,7 +18,6 @@ inputDate.style.backgroundColor = '#fff';
 inputDate.addEventListener('focus', () => {
     inputDate.removeAttribute('readonly');
     inputDate.type = 'datetime-local';
-    inputDate.click();
 });
 
 // If input is empty, change it to text and readonly

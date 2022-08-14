@@ -10,7 +10,9 @@ Home
     <div class="col-md-12">
 
         <h4 class="text-center mb-4">Scheduled Post</h4>
-
+        {% if posts | length > 1 %}
+            <p class="long-press-to-update">Long press on post then drag to change dates</p>
+        {% endif %}
         <!-- Position fixed -->
         <a class="add-new-post d-md-none" href="/post/add">
             <i class="bi bi-plus"></i>

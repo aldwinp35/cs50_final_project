@@ -96,6 +96,12 @@ body {
     color: var(--bs-gray-600);
 }
 
+.long-press-to-update {
+    text-align: center;
+    color: var(--bs-gray-500);
+    font-size: 12px;
+}
+
 @media(min-width: 768px) {
 
     .alert {

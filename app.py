@@ -178,6 +178,7 @@ def index():
                 # When dragging start form top
                 if start_index < end_index:
                     for i in range(start_index, end_index):
+                        # If one of the date post is close to be publish, dont allow to change
                         # Update post date
                         temp = posts[i].date
                         posts[i].date = posts[i + 1].date
