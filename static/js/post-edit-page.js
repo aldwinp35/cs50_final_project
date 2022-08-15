@@ -10,25 +10,29 @@ const btnSaveChange = document.querySelector('.edit-save-change');
 const form = document.querySelector('form');
 
 // Support for mobile browser: https://stackoverflow.com/questions/20321202/not-showing-placeholder-for-input-type-date-field
-// Make input readonly when input:type=text, don't show keyboard on IOS
-inputDate.setAttribute('readonly', true);
-inputDate.style.backgroundColor = '#fff';
+if (window.innerWidth <= 768)
+{
+    // Make input readonly when input:type=text, don't show keyboard on IOS
+    inputDate.setAttribute('readonly', true);
+    inputDate.style.backgroundColor = '#fff';
 
-// Change input to datetime-local
-inputDate.addEventListener('focus', () => {
-    inputDate.removeAttribute('readonly');
-    inputDate.type = 'datetime-local';
-});
+    // Change input to datetime-local
+    inputDate.addEventListener('mouseenter', () => {
+        inputDate.click();
+        inputDate.removeAttribute('readonly');
+        inputDate.type = 'datetime-local';
+    });
 
-// If input is empty, change it to text and readonly
-inputDate.addEventListener('blur', () => {
+    // If input is empty, change it to text and readonly
+    inputDate.addEventListener('mouseout', () => {
 
-    if (inputDate.value == '')
-    {
-        inputDate.type = 'text';
-        inputDate.setAttribute('readonly', true);
-    }
-});
+        if (inputDate.value == '')
+        {
+            inputDate.type = 'text';
+            inputDate.setAttribute('readonly', true);
+        }
+    });
+}
 
 // Set min, max date for inputDate
 const date = new Date();
@@ -66,15 +70,15 @@ async function submitFormHandler(e)
 {
     e.preventDefault();
 
-        // Validate input date
-    if (!validateInput(inputDate))
-    {
-        showInputError(inputDate);
-        return;
-    }
-
     if (e.target == btnPostNow)
     {
+        // Validate input date
+        if (!validateInput(inputDate))
+        {
+            showInputError(inputDate);
+            return;
+        }
+
         form.action = `${location.origin}/post/publish/${postId.value}`;
         form.submit();
     }
@@ -87,6 +91,13 @@ async function submitFormHandler(e)
     // Send by fetch request
     // References: https://developer.mozilla.org/en-US/docs/Web/API/FormData
     const formData = new FormData(form);
+
+    // Validate input date
+    if (!validateInput(inputDate))
+    {
+        showInputError(inputDate);
+        return;
+    }
 
     try {
         const req = await fetch(`/post/edit/${postId.value}`, {
