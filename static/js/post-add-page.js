@@ -22,31 +22,40 @@ window.addEventListener('DOMContentLoaded', e => {
 const options = {
     content: 'Date to publish on instagram. No longer than 50 days',
     placement: 'top',
+    trigger: 'focus',
 }
 const popover = new bootstrap.Popover(inputDate, options)
 
 // Support for mobile browser: https://stackoverflow.com/questions/20321202/not-showing-placeholder-for-input-type-date-field
-// Make input readonly when input:type=text, not show keyboard on ios
-inputDate.setAttribute('readonly', true);
-inputDate.style.backgroundColor = '#fff';
+if (window.innerWidth <= 768)
+{
+    // Make input readonly when input:type=text, not show keyboard on ios
+    inputDate.setAttribute('readonly', true);
+    inputDate.style.backgroundColor = '#fff';
 
-// Change input to datetime-local
-inputDate.addEventListener('click', () => {
+    // Change input to datetime-local
+    inputDate.addEventListener('mouseenter', () => {
+        inputDate.click();
+        inputDate.type = 'datetime-local';
+        inputDate.removeAttribute('readonly');
+    });
+
+    // If input is empty, change it to text and readonly
+    inputDate.addEventListener('mouseout', () => {
+        // Hide popover
+        popover.hide();
+
+        if (inputDate.value == '')
+        {
+            inputDate.type = 'text';
+            inputDate.setAttribute('readonly', true);
+        }
+    });
+}
+else
+{
     inputDate.type = 'datetime-local';
-    inputDate.removeAttribute('readonly');
-});
-
-// If input is empty, change it to text and readonly
-inputDate.addEventListener('blur', () => {
-    // Hide popover
-    popover.hide();
-
-    if (inputDate.value == '')
-    {
-        inputDate.type = 'text';
-        inputDate.setAttribute('readonly', true);
-    }
-});
+}
 
 // Set min, max date for inputDate
 const date = new Date();
