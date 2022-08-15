@@ -107,9 +107,10 @@ btnSendForm.addEventListener('click', async (e) => {
         alert.classList.remove('d-none');
         alert.classList.add('alert-danger');
         alert.textContent = "File is required";
+        flushHeadingOne.click();
         return;
     }
-    
+
     const maxSize = 8 * 1000 * 1000;
     if (files[0].size > maxSize)
     {

@@ -104,10 +104,6 @@ body {
 
 @media(min-width: 768px) {
 
-    .alert {
-        max-width: 60%;
-    }
-
     .post-box  div {
         width: 200px;
         height: 250px;
@@ -124,6 +120,10 @@ body {
 }
 
 @media(min-width: 1200px) {
+    .alert {
+        max-width: 60%;
+    }
+    
     .post-box  div {
         width: 250px;
         height: 300px;
@@ -240,7 +240,7 @@ body {
 }
 
 /* FOOTER */
-footer {
+/* footer {
     z-index: 100;
     position: fixed;
     bottom: 0;
@@ -250,4 +250,4 @@ footer {
     text-align: center;
     font-size: 10px;
     color: var(--bs-gray-600);
-}
+} */

@@ -5,5 +5,3 @@ A post scheduling for instagram with Flask. This project make use of the [Instag
 
 
 
-
-

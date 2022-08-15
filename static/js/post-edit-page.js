@@ -9,31 +9,6 @@ const btnPostNow = document.querySelector('.edit-post-now');
 const btnSaveChange = document.querySelector('.edit-save-change');
 const form = document.querySelector('form');
 
-// Support for mobile browser: https://stackoverflow.com/questions/20321202/not-showing-placeholder-for-input-type-date-field
-if (window.innerWidth <= 768)
-{
-    // Make input readonly when input:type=text, don't show keyboard on IOS
-    inputDate.setAttribute('readonly', true);
-    inputDate.style.backgroundColor = '#fff';
-
-    // Change input to datetime-local
-    inputDate.addEventListener('mouseenter', () => {
-        inputDate.click();
-        inputDate.removeAttribute('readonly');
-        inputDate.type = 'datetime-local';
-    });
-
-    // If input is empty, change it to text and readonly
-    inputDate.addEventListener('mouseout', () => {
-
-        if (inputDate.value == '')
-        {
-            inputDate.type = 'text';
-            inputDate.setAttribute('readonly', true);
-        }
-    });
-}
-
 // Set min, max date for inputDate
 const date = new Date();
 const minDate = getIsoDate(date);
