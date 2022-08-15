@@ -98,7 +98,7 @@ body {
 
 .long-press-to-update {
     text-align: center;
-    color: var(--bs-gray-500);
+    color: var(--bs-gray-600);
     font-size: 12px;
 }
 

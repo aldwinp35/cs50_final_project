@@ -85,6 +85,13 @@ async function mediaFilesHandler(e)
 btnSendForm.addEventListener('click', async (e) => {
     e.preventDefault();
 
+    // Validate input date
+    if (!validateInput(inputDate))
+    {
+        showInputError(inputDate);
+        return;
+    }
+
     // Validate file size
     const maxSize = 8 * 1000 * 1000;
     if (files[0].size > maxSize)
@@ -92,13 +99,6 @@ btnSendForm.addEventListener('click', async (e) => {
         alert.classList.remove('d-none');
         alert.classList.add('alert-danger');
         alert.textContent = "File is too large";
-        return;
-    }
-
-    // Validate input date
-    if (!validateInput(inputDate))
-    {
-        showInputError(inputDate);
         return;
     }
 
