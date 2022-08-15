@@ -31,7 +31,7 @@ inputDate.setAttribute('readonly', true);
 inputDate.style.backgroundColor = '#fff';
 
 // Change input to datetime-local
-inputDate.addEventListener('focus', () => {
+inputDate.addEventListener('click', () => {
     inputDate.type = 'datetime-local';
     inputDate.removeAttribute('readonly');
 });
