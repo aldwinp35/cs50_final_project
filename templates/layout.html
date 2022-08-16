@@ -18,7 +18,7 @@
         <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
 
         <!-- Site scripts -->
-        <script src="{{ url_for('static', filename='js/functions.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
         <!-- favicon -->
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <title>Ospost | {% block title %}{% endblock %}</title>
@@ -62,14 +62,6 @@
             </div>
             {% block main %}{% endblock %}
         </main>
-        <!-- <footer>
-            Copyright &copy; <span id="year"></span> Ospost
-        </footer>
-        <script>
-            // Show current year in footer
-            const footer = document.querySelector('footer');
-            footer.querySelector('#year').textContent = new Date().getFullYear();
-        </script> -->
     </body>
 
 </html>

@@ -1,18 +1,17 @@
-// Validate text/email inputs using regular expression
+// Validate input email, number, file, text
 function validateInput(inputEl)
 {
-    // Validate email
-    if (inputEl.type === "email")
+    if (inputEl.type == "email")
     {
 
         const valid = inputEl.value.match(/[a-z\d]+\@[a-z\d]+\.com/g);
-        if (valid === null || inputEl.value === "")
+        if (valid == null || inputEl.value == "")
         {
             return false;
         }
     }
 
-    if (inputEl.type === "number")
+    if (inputEl.type == "number")
     {
         if (isNaN(inputEl.value) || inputEl.value < 1)
         {
@@ -20,36 +19,17 @@ function validateInput(inputEl)
         }
     }
 
-    // Validate text
-    if (inputEl.value === "")
+    if (inputEl.type == "file")
     {
-        return false;
-    }
-
-    return true;
-}
-
-function validateInputFile(files)
-{
-
-    if (files.length === 0)
-    {
-        alert.classList.remove('d-none');
-        alert.classList.add('alert-danger');
-        alert.textContent = "File is required";
-
-        return false;
-    }
-
-    for (let i = 0; i < files.length; i++)
-    {
-        if (files[i].type !== "image/jpg" && files[i].type !== "image/jpeg")
+        if (inputEl == undefined)
         {
-            alert.classList.remove('d-none');
-            alert.classList.add('alert-danger');
-            alert.textContent = "File type not supported";
             return false;
         }
+    }
+
+    if (inputEl.value == "")
+    {
+        return false;
     }
 
     return true;
@@ -128,7 +108,7 @@ function getIsoDate(date)
     `.split(" ").join("").split("\n").join("");
 }
 
-// https://stackoverflow.com/questions/563406/how-to-add-days-to-date?answertab=scoredesc
+// https://stackoverflow.com/questions/563406/how-to-add-days-to-date
 function addDays(date, days) {
     const result = new Date(date);
     result.setDate(result.getDate() + days);

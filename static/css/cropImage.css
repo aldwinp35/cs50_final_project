@@ -7,21 +7,21 @@
     background: black;
 }
 
-.button-remove {
+.remove-image-button {
     position: absolute;
     bottom: 5px;
     left: 5px;
     z-index: 3;
 }
 
-.button-crop {
+.toggle-cropbox-btn {
     position: absolute;
     bottom: 5px;
     right: 5px;
     z-index: 3;
 }
 
-.button-save-crop {
+.crop-button {
     position: absolute;
     bottom: 5px;
     right: 5px;
@@ -100,7 +100,7 @@
 
 
 /* Media */
-.current-media-wrapper {
+.image-element-wrapper {
     width: 100%;
     position: relative;
     margin-bottom: 5px;
@@ -116,26 +116,8 @@
     overflow: hidden;
 }
 
-.current-media-crop {
+.image-element {
     width: inherit;
     max-width: 100%;
     display: block;
-}
-
-/* Viewmap */
-.viewmap-wrapper {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    overflow: auto;
-    margin-bottom: 10px;
-}
-
-.viewmap-image {
-    width: 48px;
-    height: 48px;
-    overflow: hidden;
-    background-position: center center;
-    background-size: cover;
-    background-repeat: no-repeat;
 }

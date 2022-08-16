@@ -9,21 +9,11 @@ Edit post
 <div class="row justify-content-center mb-5">
     <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-lx-4 col-section">
 
-        <!-- <div class="d-flex align-items-center mb-3">
-            <img class="me-2 rounded-circle" src="{{url_for('send_file', filename=post['filename'])}}" width="40" alt="">
-            <p class="m-0">ig_page_username</p>
-        </div> -->
-
         <div class="edit-post-picture mb-3">
             <img class="rounded" src="{{ url_for('send_file', filename=post['filename']) }}" alt="">
         </div>
         <form action="/post/edit/{{ post['id'] }}" method="post">
             <input id="post_id" type="hidden" value="{{ post['id'] }}">
-            <!--
-            <div class="caption rounded mb-3 position-relative">
-                <p class="m-0">{{ post['caption'] }}</p>
-                <i class="bi bi-pencil-fill" title="Edit caption"></i>
-            </div> -->
             <div class="caption-section mb-3">
                 <i class="bi bi-pencil-fill btn btn-sm btn-dark" title="Edit caption"></i>
                 <textarea class="form-control form-control-sm readonly-textarea" name="caption" id="caption" rows="8" readonly spellcheck="false" placeholder="Insert a caption (optional)">{{ post['caption'] }}</textarea>
@@ -31,20 +21,6 @@ Edit post
 
             <div class="datetime-section mb-3">
                 <input class="form-control form-control-sm" type="datetime-local" name="date" id="date" value="{{ post['date'] }}">
-                <!-- <select class="form-control form-control-sm" name="hour" id="hour">
-                    {% for i in range(1, 13) %}
-                        <option value="{{ i }}" selected>{{ i }}</option>
-                    {% endfor %}
-                </select>
-                <select class="form-control form-control-sm" name="minute" id="minute">
-                    {% for i in range(1, 60) %}
-                        <option value="{{ i }}" selected>{{ i }}</option>
-                    {% endfor %}
-                </select>
-                <select class="form-control form-control-sm" name="hour-format" id="hour-format">
-                    <option value="am" selected>AM</option>
-                    <option value="pm">PM</option>
-                </select> -->
             </div>
             <div class="edit-post-buttons">
                 <input type="submit" value="Remove" class="btn btn-sm btn-dark ms-0 mx-auto edit-remove-post">
@@ -55,5 +31,5 @@ Edit post
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/post-edit-page.js') }}"></script>
+<script src="{{ url_for('static', filename='js/postEditPage.js') }}"></script>
 {% endblock %}

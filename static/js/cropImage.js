@@ -1,61 +1,70 @@
 class CropImage
 {
-    files;
-    cropper;
-    cropBtn;
-    removeBtn;
-    saveCropBtn;
-    containerEl;
-    currentMediaEl;
-    currentMediaWrapperEl;
+    imageFile;                      // <-- image file
+    imageEl;                        // <-- image element
+    cropper;                        // <-- cropper instance
+    cropBtn;                        // <-- button to cropp image
+    removeImageBtn;                 // <-- button to remove image
+    toggleCropBoxBtn;               // <-- button to toggle the cropbox of cropperjs
+    container;                      // <-- container where the cropper will be render
+    imageElWrapper;                 // <-- container that wrap image element
+    inputFileWrapper;               // <-- container that wrap input file
+    MAX_WIDTH_SIZE = 1080;          // <-- Max size in width
+    MAX_HEIGHT_SIZE = 1440;         // <-- Max size in height
+    MIN_SIZE = 320;                 // <-- Min size (width, height)
 
-    MAX_WIDTH_SIZE = 1080;
-    MAX_HEIGHT_SIZE = 1350;
-    MIN_SIZE = 320;
-
-    constructor(containerEl, files)
+    // Get container where cropper will be render
+    // Get inputFileWrapper to hide it when image is loaded
+    // and show it when image is remove
+    // Get image
+    constructor(container, inputFileWrapper, image)
     {
-        this.containerEl = containerEl;
-        this.files = files;
+        this.imageFile = image;
+        this.container = container;
+        this.inputFileWrapper = inputFileWrapper;
     }
 
+    // Create elements, render cropperjs with image
     display()
     {
-        this.currentMediaWrapperEl = document.createElement('div');
-        this.currentMediaWrapperEl.classList.add('current-media-wrapper');
+        // Hide InputFileWrapper area
+        this.inputFileWrapper.classList.add('d-none');
+        this.inputFileWrapper.parentElement.classList.remove('p-3');
 
-        // Create currentMediaEl tag for cropping
-        this.currentMediaEl = document.createElement('img');
-        this.currentMediaEl.classList.add('current-media-crop');
-        this.currentMediaEl.src = this.files[0].url;
+        // Create img element wrapper
+        this.imageElWrapper = document.createElement('div');
+        this.imageElWrapper.classList.add('image-element-wrapper');
+
+        // Create img element for cropping
+        this.imageEl = document.createElement('img');
+        this.imageEl.classList.add('image-element');
+        this.imageFile.url = URL.createObjectURL(this.imageFile);
+        this.imageEl.src = this.imageFile.url;
 
         // Append elements to current media wrapper
-        this.currentMediaWrapperEl.append(this.currentMediaEl);
+        this.imageElWrapper.append(this.imageEl);
 
-        // Create buttons (remove, crop)
-        this.removeBtn = document.createElement('button'); this.removeBtn.className = 'button button-remove';
-        const removeBtnIcon = document.createElement('i'); removeBtnIcon.className = 'bi bi-trash3 button-icon-event';
-        this.removeBtn.appendChild(removeBtnIcon);
-        this.removeBtn.addEventListener('click', e => this.remove(e));
+        // Create removeImageBtn, activeCropBtn, cropBtn
+        this.removeImageBtn = document.createElement('button'); this.removeImageBtn.className = 'button remove-image-button';
+        const removeImageBtnIcon = document.createElement('i'); removeImageBtnIcon.className = 'bi bi-trash3 button-icon-event';
+        this.removeImageBtn.appendChild(removeImageBtnIcon);
+        this.removeImageBtn.addEventListener('click', e => this.remove(e));
 
-        this.cropBtn = document.createElement('button'); this.cropBtn.className = 'button button-crop';
-        const cropBtnIcon = document.createElement('i'); cropBtnIcon.className = 'bi bi-crop button-icon-event';
+        this.toggleCropBoxBtn = document.createElement('button'); this.toggleCropBoxBtn.className = 'button toggle-cropbox-btn';
+        const activeCropBtnIcon = document.createElement('i'); activeCropBtnIcon.className = 'bi bi-crop button-icon-event';
+        this.toggleCropBoxBtn.appendChild(activeCropBtnIcon);
+        this.toggleCropBoxBtn.addEventListener('click', e => this.toggleCropBox(e));
+
+        this.cropBtn = document.createElement('button'); this.cropBtn.className = 'button crop-button d-none';
+        const cropBtnIcon = document.createElement('i'); cropBtnIcon.className = 'bi bi-check2 button-icon-event';
         this.cropBtn.appendChild(cropBtnIcon);
-        this.cropBtn.addEventListener('click', e => this.toggleCropButtons(e));
-
-        this.saveCropBtn = document.createElement('button'); this.saveCropBtn.className = 'button button-save-crop d-none';
-        const saveCropBtnIcon = document.createElement('i'); saveCropBtnIcon.className = 'bi bi-check2 button-icon-event';
-        this.saveCropBtn.appendChild(saveCropBtnIcon);
 
         // Append buttons to container
-        this.currentMediaWrapperEl.append(this.removeBtn, this.cropBtn, this.saveCropBtn);
-
-        // Append elements to carousel container
-        this.containerEl.appendChild(this.currentMediaWrapperEl);
+        this.imageElWrapper.append(this.removeImageBtn, this.toggleCropBoxBtn, this.cropBtn);
 
         // Initialize cropperjs
         const _this = this;
-        this.cropper = new Cropper(this.currentMediaEl, {
+        this.cropper = new Cropper(this.imageEl, {
             aspectRatio: 1,
             autoCrop: false,
             viewMode: 1,
@@ -70,93 +79,86 @@ class CropImage
                 _this.checkLoadedImage();
             }
         });
+
+        // Append elements to carousel container
+        this.container.appendChild(this.imageElWrapper);
     }
 
-    // Remove current media
+    // Remove image from container
     remove(e)
     {
         e.preventDefault();
 
-        // Remove file from memory
-        URL.revokeObjectURL(this.files[0].url);
-        this.files.pop();
+        // Remove image URL from memory
+        URL.revokeObjectURL(this.imageFile.url);
+
+        // Remove file
+        this.imageFile = null;
 
         // Remove container items
-        for (let i = 0; i < this.containerEl.childElementCount; i++)
+        for (let i = 0; i < this.container.childElementCount; i++)
         {
-            this.containerEl.children[i].remove();
+            this.container.children[i].remove();
         }
 
-        // This element is a child of containerEl, but because is not a class property containerEl don't recognized
+        // This element is a child of container, but because is not a class property container don't recognized
         // That's why here we remove it manually.
         const btnRatioContainer = document.querySelector('.btn-ratio-container');
         if (btnRatioContainer != null)
             btnRatioContainer.remove();
 
         // Show input file again
-        const mediaFilesWrapper = document.querySelector('#media-files-wrapper');
-        mediaFilesWrapper.classList.remove('d-none');
-        mediaFilesWrapper.parentElement.classList.add('p-3');
+        this.inputFileWrapper.classList.remove('d-none');
+        this.inputFileWrapper.parentElement.classList.add('p-3');
     }
 
-    // Toogle between (remove, crop) and (close, saveCrop) buttons.
-    // When the picture is loaded. (remove and crop) btn are shown.
-    // When crop btn is clicked, (close, and save) will show
-    // Also cropBox, and aspect ratio buttons will show too
-    toggleCropButtons(e)
+    // Toggle cropbox (show/hide)
+    toggleCropBox(e)
     {
         e.preventDefault();
 
         // Make sure only one click goes through
         if (!e.detail || e.detail == 1)
         {
-            // Aspect ratio buttons
             const btnRatioContainer = document.querySelector('.btn-ratio-container');
-            // When cropBtn is clicked, If aspect ratio buttons doesn't exist
+
             if (btnRatioContainer === null)
             {
-                // Hide removeBtn
-                this.removeBtn.classList.add('d-none');
+                // Toggle between removeImageBtn and cropBtn (show/hide)
+                this.removeImageBtn.classList.toggle('d-none');
+                this.cropBtn.classList.toggle('d-none');
 
-                // Change cropBtn icon (crop to close icon) and move it all the way to the left side
-                this.cropBtn.firstChild.classList.remove('bi-crop');
-                this.cropBtn.firstChild.classList.add('bi-x-lg');
-                this.cropBtn.style = 'left: 5px; right: unset;';
+                // Toggle toggleCropBoxBtn icon, to close icon (show/hide)
+                this.toggleCropBoxBtn.firstChild.classList.toggle('bi-crop');
+                this.toggleCropBoxBtn.firstChild.classList.toggle('bi-x-lg');
 
-                // Show saveCropBtn that will appear at the right side
-                this.saveCropBtn.classList.remove('d-none');
+                // Change toggleCropBoxBtn position (left/right) (original position is right)
+                this.toggleCropBoxBtn.style = 'left: 5px; right: unset;';
 
-                // Show cropBox
+                // Show cropbox
                 this.cropper.crop();
 
                 // Create and show aspect ratio buttons
-                this.aspectRatioButtons();
+                this.createAspectRatioButtons();
 
                 // Click on the aspect ratio 1:1 (square) to make it show first
                 document.querySelector('.ratio_square').parentElement.click();
             }
-
-            // If aspect ratio buttons exists, but they are hidden
             else
             {
                 if (btnRatioContainer.classList.contains('d-none'))
                 {
-                    // Hide removeBtn
-                    this.removeBtn.classList.add('d-none');
+                    this.removeImageBtn.classList.toggle('d-none');
+                    this.cropBtn.classList.toggle('d-none');
+                    this.toggleCropBoxBtn.firstChild.classList.toggle('bi-crop');
+                    this.toggleCropBoxBtn.firstChild.classList.toggle('bi-x-lg');
+                    this.toggleCropBoxBtn.style = 'left: 5px; right: unset;';
 
-                    // Change cropBtn icon (crop to close icon) and move it all the way to the left side
-                    this.cropBtn.firstChild.classList.remove('bi-crop');
-                    this.cropBtn.firstChild.classList.add('bi-x-lg');
-                    this.cropBtn.style = 'left: 5px; right: unset;';
-
-                    // Show saveCropBtn that will appear at the right side
-                    this.saveCropBtn.classList.remove('d-none');
+                    // Show cropbox
+                    this.cropper.crop();
 
                     // Show aspect ratio buttons
-                    btnRatioContainer.classList.remove('d-none');
-
-                    // Show cropBox
-                    this.cropper.crop();
+                    btnRatioContainer.classList.toggle('d-none');
 
                     // Click on default aspect ratio (square ratio)
                     document.querySelector('.ratio_square').parentElement.click();
@@ -165,25 +167,24 @@ class CropImage
                 // If aspect ratio buttons are shown
                 else
                 {
-                    // Show removeBtn
-                    this.removeBtn.classList.remove('d-none');
+                    this.removeImageBtn.classList.toggle('d-none');
+                    this.cropBtn.classList.toggle('d-none');
+                    this.toggleCropBoxBtn.firstChild.classList.toggle('bi-crop');
+                    this.toggleCropBoxBtn.firstChild.classList.toggle('bi-x-lg');
+                    this.toggleCropBoxBtn.style = 'left: unset; right: 5px;';
 
-                    // Change cropBtn icon (close to crop icon) and move it all the way to the right side
-                    this.cropBtn.firstChild.classList.add('bi-crop');
-                    this.cropBtn.firstChild.classList.remove('bi-x-lg');
-                    this.cropBtn.style = 'left: unset; right: 5px;';
-
-                    // Hide saveCropBtn, aspect ratio buttons and cropBox
-                    this.saveCropBtn.classList.add('d-none');
-                    btnRatioContainer.classList.add('d-none');
+                    // Hide cropbox
                     this.cropper.clear();
+
+                    // Hide aspect ratio buttons
+                    btnRatioContainer.classList.toggle('d-none');
                 }
             }
         }
     }
 
     // Create and display aspect ratio buttons
-    aspectRatioButtons(image=null)
+    createAspectRatioButtons()
     {
         // When cropImage method is used, it will re-create the aspect ratio buttons
         // With the new image size by calling this method again.
@@ -192,22 +193,20 @@ class CropImage
         if (btnRatioContainer !== null)
             btnRatioContainer.remove();
 
-        if (image == null)
-        {
-            // Get image data from cropper
-            image = this.cropper.getImageData();
-        }
+        // Get image data from cropper
+        let imageData = this.cropper.getImageData();
+
+        // Image size
+        let imageSize = {};
 
         // Aspect ratios object
         const aspectRatios = [
-            { name: "Original", ratio: image.aspectRatio, class: "ratio_original" },
+            { name: "Original", ratio: imageData.aspectRatio, class: "ratio_original" },
             { name: "Square", ratio: 1 / 1, class: "ratio_square" },
             { name: "4:5", ratio: 4 / 5, class: "ratio_4_5" },
             { name: "16:9", ratio: 16 / 9, class: "ratio_16_9" },
         ];
 
-        // Image size
-        let imageSize = {};
 
         // Create aspect ratio buttons container
         btnRatioContainer = document.createElement('div');
@@ -250,7 +249,7 @@ class CropImage
                 this.cropper.setCropBoxData({ "width": this.cropper.getContainerData().width });
 
                 // Get the new image size (size that the image going to be cropped)
-                imageSize = this.getNewImageSize(image, aspectRatios[i].ratio);
+                imageSize = this.getNewImageSize(imageData, aspectRatios[i].ratio);
             });
 
             // If original image aspect ratio is supported on instagram. Append its button to the container
@@ -267,15 +266,16 @@ class CropImage
             }
         }
 
-        // Prevent event listener to apply more than once on saveCropBtn
-        if (!this.saveCropBtn.classList.contains('listener'))
+        // Prevent event listener to apply more than once to cropBtn
+        if (!this.cropBtn.classList.contains('listener'))
         {
-            this.saveCropBtn.addEventListener('click', e => this.cropImage(e, imageSize));
-            this.saveCropBtn.classList.add('listener')
+            // Add click event listener to cropBtn
+            this.cropBtn.addEventListener('click', e => this.cropImage(e, imageSize));
+            this.cropBtn.classList.add('listener');
         }
 
         // Append aspect ratio container
-        this.containerEl.appendChild(btnRatioContainer);
+        this.container.appendChild(btnRatioContainer);
     }
 
     // Crop an image with its corresponding aspect ratio
@@ -283,6 +283,7 @@ class CropImage
     {
         e.preventDefault();
 
+        // https://github.com/fengyuanchen/cropperjs#getcroppedcanvasoptions
         this.cropper.getCroppedCanvas({
             width: imageSize.width,
             height: imageSize.height,
@@ -294,41 +295,36 @@ class CropImage
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high'
         }).toBlob(blob => {
-
-            // References:
-            // https://github.com/fengyuanchen/cropperjs#getcroppedcanvasoptions
             // https://developer.mozilla.org/en-US/docs/Web/API/Blob
+
+            // When the original image is loaded, if that image has a large size, or unsupported aspect ratio,
+            // toggleCropBoxBtn is going to be clicked and then hidden in the checkLoadedImage()
+            // Now here we check if toggleCropBoxBtn is hidden, we show it
+            if (this.toggleCropBoxBtn.classList.contains('d-none'))
+                this.toggleCropBoxBtn.classList.remove('d-none');
+
+            // Revoke old image url
+            URL.revokeObjectURL(this.imageFile.url);
+
+            // Get new image url, and put the same name as the old image
+            const newImageUrl = URL.createObjectURL(blob);
+            const filename = this.imageFile.name;
+
+            // Update image
             // https://developer.mozilla.org/en-US/docs/Web/API/File
-
-            // When the first image is loaded, if that image has a large size, or unsupported aspect ratio,
-            // In the display() method cropBtn is going to be clicked and then hidden
-            // Now here we check if this cropBtn is hidden, we show it
-            if (this.cropBtn.classList.contains('d-none'))
-                this.cropBtn.classList.remove('d-none');
-
-            // Revoke old file url
-            URL.revokeObjectURL(this.files[0].url);
-
-            // Get new file url, and put the same name as the old file
-            const newUrl = URL.createObjectURL(blob);
-            const filename = this.files[0].name;
-
-            // Update file
-            const newFile = new File([blob], filename);
-            this.files[0] = newFile;
-            this.files[0].url = newUrl;
+            const newImage = new File([blob], filename);
+            this.imageFile = newImage;
+            this.imageFile.url = newImageUrl;
 
             // Rebuild cropper with the new image url
-            this.cropper.replace(this.files[0].url);
-            this.aspectRatioButtons();
-            this.cropBtn.click();
+            this.cropper.replace(this.imageFile.url);
+            this.createAspectRatioButtons();
+            this.toggleCropBoxBtn.click();
 
         }, "image/jpeg", 1);
     }
 
-    // Once the image load in the cropper
-    // Force image to be crop if aspect ratio is not supported,
-    // Or if widht or height are greater than its requied
+    // Check if loaded image is supported, if not, it will force the user to crop it
     checkLoadedImage() {
 
         const image = this.cropper.getImageData();
@@ -336,30 +332,29 @@ class CropImage
         // Check aspect ratio is supported
         if ((image.aspectRatio >= 0.8 && image.aspectRatio <= 1.91) == false)
         {
-            this.cropBtn.click();
-            this.cropBtn.classList.add('d-none');
+            this.toggleCropBoxBtn.click();
+            this.toggleCropBoxBtn.classList.add('d-none');
         }
         else if (image.naturalHeight > this.MAX_HEIGHT_SIZE)
         {
-            this.cropBtn.click();
-            this.cropBtn.classList.add('d-none');
+            this.toggleCropBoxBtn.click();
+            this.toggleCropBoxBtn.classList.add('d-none');
         }
         else if (image.naturalWidth > this.MAX_WIDTH_SIZE)
         {
-            this.cropBtn.click();
-            this.cropBtn.classList.add('d-none');
+            this.toggleCropBoxBtn.click();
+            this.toggleCropBoxBtn.classList.add('d-none');
         }
     }
 
     // Get a new size for image to be cropped.
-    // Max size will be between 1080 width and 1350 height, according to instagram specification.
-    getNewImageSize(image, aspectRatio)
+    getNewImageSize(imageData, aspectRatio)
     {
         const percent = 43.7;
         let size = {};
 
         // Enlarge small images to at least 320px
-        if (image.naturalWidth < 320 || image.naturalHeight < 320)
+        if (imageData.naturalWidth < 320 || imageData.naturalHeight < 320)
         {
             size.width = this.MIN_SIZE;
             size.height = this.MIN_SIZE;
@@ -372,12 +367,12 @@ class CropImage
         // Set image width and height to the lower size to maintain good quality
         if (aspectRatio === 1)
         {
-            if (image.naturalWidth > this.MAX_WIDTH_SIZE && image.naturalHeight > this.MAX_WIDTH_SIZE)
+            if (imageData.naturalWidth > this.MAX_WIDTH_SIZE && imageData.naturalHeight > this.MAX_WIDTH_SIZE)
                 size.width = size.height = this.MAX_WIDTH_SIZE;
-            else if (image.naturalWidth < image.naturalHeight)
-                size.width = size.height = image.naturalWidth;
+            else if (imageData.naturalWidth < imageData.naturalHeight)
+                size.width = size.height = imageData.naturalWidth;
             else
-                size.width = size.height = image.naturalHeight;
+                size.width = size.height = imageData.naturalHeight;
 
             return size;
         }
@@ -385,15 +380,15 @@ class CropImage
         // When width is greater than height
         if (aspectRatio > 1)
         {
-            if (image.naturalWidth > this.MAX_WIDTH_SIZE)
+            if (imageData.naturalWidth > this.MAX_WIDTH_SIZE)
             {
                 size.width = this.MAX_WIDTH_SIZE;
                 size.height = this.MAX_WIDTH_SIZE - (Math.round(this.MAX_WIDTH_SIZE * percent / 100));
             }
             else
             {
-                size.width = image.naturalWidth;
-                size.height = image.naturalWidth  - (Math.round(image.naturalWidth * percent / 100));
+                size.width = imageData.naturalWidth;
+                size.height = imageData.naturalWidth  - (Math.round(imageData.naturalWidth * percent / 100));
             }
 
             return size;
@@ -402,15 +397,15 @@ class CropImage
         // When height is greater than width
         else
         {
-            if (image.naturalHeight > this.MAX_HEIGHT_SIZE)
+            if (imageData.naturalHeight > this.MAX_HEIGHT_SIZE)
             {
                 size.width = this.MAX_HEIGHT_SIZE - (Math.round(this.MAX_HEIGHT_SIZE * percent / 100));
                 size.height = this.MAX_HEIGHT_SIZE;
             }
             else
             {
-                size.width = image.naturalHeight - (Math.round(image.naturalHeight * percent / 100));
-                size.height = image.naturalHeight;
+                size.width = imageData.naturalHeight - (Math.round(imageData.naturalHeight * percent / 100));
+                size.height = imageData.naturalHeight;
             }
 
             return size;

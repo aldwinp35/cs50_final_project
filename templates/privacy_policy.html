@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="description" content="Ospost is a final proyect for CS50 that use the Facebook graph API to schedule Instagram post">
+	<meta name="description" content="Ospost is a post scheduling for Instagram that you can help you to plan your posts to publish them on a specific date on instagram.">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -28,26 +28,38 @@
         <h4>Information that may be collected</h4>
         <ul>
             <li>Name</li>
+            <li>Email</li>
+            <li>Username</li>
             <li>Profile picture</li>
             <li>Instagram account id</li>
         </ul>
 
         <h4>How this information is used</h4>
-        <p>The name and profile picture are used as part of your profile within the website. You can see this data when you log in.</p>
-        <p>The instagram account id is required by some endpoints of the Facebook Graph API, also it is used to organized the folder structure with the media you upload.</p>
+        <p>Name and profile picture are used as part of the profile within the website. You can see this data when you log in.</p>
+        <p>Eemail is used to notify the user of any events that occurs with their account.</p>
+        <p>Username is used to identify the instagram account that is been used.</p>
+        <p>Instagram account id is required by some endpoints of the Facebook Graph API, also it is used to organized the folder structure with the media you upload.</p>
         <p>This information will NOT be share with third-party websites, firms, sellers, researchers, etc. You will be able to delete all the information we have collected.</p>
 
         <h4>Permissions that can be accessed</h4>
         <ul>
-            <!-- <li><a href="https://developers.facebook.com/docs/permissions/reference/public_profile">public_profile</a></li> -->
+            <li><a href="https://developers.facebook.com/docs/permissions/reference/email">email</a></li>
+            <li><a href="https://developers.facebook.com/docs/permissions/reference/public_profile">public_profile</a></li>
             <li><a href="https://developers.facebook.com/docs/permissions/reference/instagram_basic">instagram_basic</a></li>
             <li><a href="https://developers.facebook.com/docs/permissions/reference/pages_show_list">pages_show_list</a></li>
             <li><a href="https://developers.facebook.com/docs/permissions/reference/instagram_content_publish">instagram_content_publish</a></li>
         </ul>
 
-        <p>These permissions are required for the app to work properly.</p>
-        <p>You can revoke permissions granted <a href="https://facebook.com/settings/business_integrations/">here</a></p>
+        <h4>Why these Permissions</h4>
 
+        <p><b>public_profile</b> is need it to get your facebook name and profile picture.</p>
+        <p><b>pages_show_list</b> is need it to get the Facebook Page ID connected to your Instagram Business Account. Facebook Page ID is required to get Instagram Account ID.</p>
+        <p><b>instagram_basic</b> is need it to get the instagram account ID and username.</p>
+        <p><b>instagram_content_publish</b> is need it to be able to publish on your instagram account.</p>
+
+        <p>These permissions are required for the app to work properly.</p>
+        <p>You can click on each permission to see more information on the Facebook Graph API documentation.</p>
+        <p>You can revoke permissions granted <a href="https://facebook.com/settings/business_integrations/">here</a>.</p>
     </div>
 </body>
 </html>

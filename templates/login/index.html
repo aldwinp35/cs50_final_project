@@ -20,7 +20,7 @@
 
         body {
             font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
-            background-image: url("{{ url_for('static', filename='bg-login.jpg') }}");
+            background-image: url("{{ url_for('static', filename='bgLogin.jpg') }}");
             background-size: cover;
             background-position: center center;
 
@@ -94,6 +94,12 @@
 
         <!-- Implement Facebook Login Permissions: https://developers.facebook.com/docs/instagram-api/getting-started -->
         <!-- Content Publishing Permissions: https://developers.facebook.com/docs/instagram-api/guides/content-publishing -->
+
+        <!--
+            email,
+            public_profile,
+         -->
+
         <div
             class="fb-login-button"
             data-width=""
@@ -122,6 +128,6 @@
     <input type="hidden" id="app_version" value="{{ fb.version }}">
 
     <script src="{{ url_for('static', filename='js/functions.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/fb-login.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loginPage.js') }}"></script>
 </body>
 </html>

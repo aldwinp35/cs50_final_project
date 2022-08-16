@@ -39,9 +39,6 @@ function statusChangeCallback(response)
             FB.api('/me/accounts?fields=id', function (fbPageIdResponse) {
                 if (!fbPageIdResponse.error)
                 {
-                    // Add fb_id to response
-                    // response.fb_id = fbPageIdResponse['data'][0].id;
-
                     // Get Account page id
                     FB.api(`${fbPageIdResponse['data'][0].id}?fields=instagram_business_account`, async function (igAccountIdResponse) {
                         if (!igAccountIdResponse.error)

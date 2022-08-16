@@ -1,30 +1,31 @@
-let files = [];
+let  image = null;
 const alert = document.querySelector('.alert');
 const flushHeadingOne = document.getElementById('flush-headingOne').children[0];
-const mediaFilesWrapper = document.querySelector('#media-files-wrapper');
-const addMediaFiles = document.querySelector('#add-media-files');
+const inputFileWrapper = document.querySelector('#input-file-wrapper');
+const inputFile = document.querySelector('#input-file');
 const uploadPreview = document.querySelector('.upload-preview');
-const btnSendForm = document.querySelector('#btnSendForm');
+const savePostBtn = document.querySelector('#save-post-button');
 const inputDate = document.querySelector('#date');
 const inputCaption = document.querySelector('#caption');
 
-// Remove any file reference before reload
-window.addEventListener('beforeunload', e => {
-    removeBlob();
-});
-
-// Click to show file first
-window.addEventListener('DOMContentLoaded', e => {
-    flushHeadingOne.click();
-});
-
-// Popover instruction for date
 const options = {
     content: 'Date to publish on instagram. No longer than 50 days',
     placement: 'top',
     trigger: 'focus',
 }
 const popover = new bootstrap.Popover(inputDate, options)
+
+// Set min, max date for inputDate
+const date = new Date();
+const minDate = getIsoDate(date);
+const maxDate = getIsoDate(addDays(date, 50));
+inputDate.setAttribute('min', minDate);
+inputDate.setAttribute('max', maxDate);
+
+// Click to show file first
+window.addEventListener('DOMContentLoaded', e => {
+    flushHeadingOne.click();
+});
 
 // Support for mobile browser: https://stackoverflow.com/questions/20321202/not-showing-placeholder-for-input-type-date-field
 if (window.innerWidth <= 768)
@@ -57,60 +58,49 @@ else
     inputDate.type = 'datetime-local';
 }
 
-// Set min, max date for inputDate
-const date = new Date();
-const minDate = getIsoDate(date);
-const maxDate = getIsoDate(addDays(date, 50));
-inputDate.setAttribute('min', minDate);
-inputDate.setAttribute('max', maxDate);
-
 // Add file
-addMediaFiles.addEventListener('change', mediaFilesHandler);
-async function mediaFilesHandler(e)
+inputFile.addEventListener('change', inputFileHandler);
+async function inputFileHandler(e)
 {
-    // Get file
-    files.push(e.target.files[0]);
+    // Get image
+    image = e.target.files[0];
 
-    // Validate files type (jpg, jpeg) are allowed
-    if (!validateInputFile(files))
-        return;
-
-    // Hide "select media" area
-    mediaFilesWrapper.classList.add('d-none');
-    mediaFilesWrapper.parentElement.classList.remove('p-3');
-
-    // Create a property URL for each File in files array
-    for (let file of files)
+    // Make sure image is jpg, jpeg
+    if (image.type != "image/jpg" && image.type != "image/jpeg")
     {
-        file.url = URL.createObjectURL(file);
+        alert.classList.remove('d-none');
+        alert.classList.add('alert-danger');
+        alert.textContent = "File type not supported";
+        return;
     }
 
-    const cropImg = new CropImage(uploadPreview, files);
-    cropImg.display();
+    // Render image with cropper js
+    const cropImage = new CropImage(uploadPreview, inputFileWrapper, image);
+    cropImage.display();
 
-} // input file: addMediaFiles handler
+} // inputFileHandler
 
-// SEND DATA WITH POST REQUEST
-btnSendForm.addEventListener('click', async (e) => {
+// Save post button
+savePostBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    // Validate input date
+    // Make sure input date is not empty
     if (!validateInput(inputDate))
     {
         showInputError(inputDate);
         return;
     }
 
-    // Validate file size
-    if (files.length == 0)
+    // Make sure image is not null
+    if (!validateInput(image))
     {
         alert.classList.remove('d-none');
         alert.classList.add('alert-danger');
         alert.textContent = "File is required";
-        flushHeadingOne.click();
         return;
     }
 
+    // Image max. size 8 MB.
     const maxSize = 8 * 1000 * 1000;
     if (files[0].size > maxSize)
     {
@@ -130,7 +120,7 @@ btnSendForm.addEventListener('click', async (e) => {
         fd.append('file' + i, files[i]);
     }
 
-    // Send request
+    // Send data
     try {
         const req = await fetch('/post/add', {
             method: 'POST',
@@ -141,9 +131,6 @@ btnSendForm.addEventListener('click', async (e) => {
 
         if (res.ok)
         {
-            // Remove file reference
-            removeBlob();
-
             // Redirect to home page
             location.href = location.origin;
         }
@@ -162,13 +149,3 @@ btnSendForm.addEventListener('click', async (e) => {
         console.error('Error:', error)
     }
 });
-
-// Remove blob reference from memory
-function removeBlob()
-{
-    if (files.length > 0) {
-        for (let f of files) {
-            URL.revokeObjectURL(f.url);
-        }
-    }
-}

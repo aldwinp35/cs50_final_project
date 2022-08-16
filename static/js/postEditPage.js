@@ -56,11 +56,13 @@ async function submitFormHandler(e)
 
         form.action = `${location.origin}/post/publish/${postId.value}`;
         form.submit();
+        return;
     }
     else if (e.target == btnRemovePost)
     {
         form.action = `${location.origin}/post/remove/${postId.value}`;
         form.submit();
+        return;
     }
 
     // Send by fetch request
