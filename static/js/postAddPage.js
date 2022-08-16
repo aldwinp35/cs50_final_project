@@ -102,7 +102,7 @@ savePostBtn.addEventListener('click', async (e) => {
 
     // Image max. size 8 MB.
     const maxSize = 8 * 1000 * 1000;
-    if (files[0].size > maxSize)
+    if (image.size > maxSize)
     {
         alert.classList.remove('d-none');
         alert.classList.add('alert-danger');
@@ -113,12 +113,7 @@ savePostBtn.addEventListener('click', async (e) => {
     const fd = new FormData();
     fd.append('date', inputDate.value);
     fd.append('caption', inputCaption.value);
-
-    // Append every file in the formData
-    for (let i = 0; i < files.length; i++)
-    {
-        fd.append('file' + i, files[i]);
-    }
+    fd.append('image', image);
 
     // Send data
     try {

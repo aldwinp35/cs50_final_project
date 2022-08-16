@@ -291,8 +291,8 @@ def add():
                 # Save file
                 file.save(os.path.join(resource_path, filename))
 
-        user_id = session.get("user_id")
         # Save post in database
+        user_id = session.get("user_id")
         post = Post(date=date, caption=caption, filename=filename, user_id=user_id)
         db.session.add(post)
         db.session.commit()

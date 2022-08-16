@@ -81,6 +81,11 @@ def allowed_file(filename):
 
 def publish_post(post_id):
 
+    # Dont try to post on instagram on development mode
+    if os.environ.get("FLASK_ENV") == "development":
+        print("Your post would be publishing on instagram right now...")
+        return True
+
     from models import db, Post, User
     from app import app
     with app.test_request_context():
