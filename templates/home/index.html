@@ -8,16 +8,20 @@ Home
 
 <div class="row mb-5">
     <div class="col-md-12">
-
+        <!-- Header -->
         <h4 class="text-center mb-4">Scheduled Post</h4>
+
+        <!-- If there are more than two post, allow to swich dates between then -->
         {% if posts | length > 1 %}
             <p class="long-press-to-update">Long press on post, then drag to switch dates</p>
         {% endif %}
-        <!-- Position fixed -->
+
+        <!-- Add new post button -->
         <a class="add-new-post d-md-none" href="/post/add">
             <i class="bi bi-plus"></i>
         </a>
 
+        <!-- Display scheduled user's post -->
         {% if posts %}
             <div id="post-section">
                 {% for post in posts %}
@@ -28,6 +32,8 @@ Home
                     </div>
                 {% endfor %}
             </div>
+
+        <!-- Show default message when user has no post scheduled -->
         {% else %}
         <div class="d-flex justify-content-center">
             <div class="rounded text-center border no-post-scheduled">There are no posts scheduled</div>

@@ -26,7 +26,6 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-app.config['SECRET_KEY'] = os.urandom(32)
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000
 app.config["UPLOAD_FOLDER_RELATIVE"] = "uploads"
 app.config["UPLOAD_FOLDER_ABSOLUTE"] = os.path.join(app.root_path, "uploads")
@@ -72,7 +71,7 @@ scheduler.start()
 # ROUTES
 # ------------------------
 
-# Render login page (Login with facebook)
+# Render login page, proccess login request
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -142,10 +141,9 @@ def login():
             fb = {"version": os.getenv("FB_VERSION"), "app_id": os.getenv("FB_APP_ID")}
             return render_template("login/index.html", fb=fb)
 
-
+# Log user out
 @app.route("/logout")
 def logout():
-    """Log user out"""
 
     # Forget any user_id
     session.clear()
@@ -154,7 +152,7 @@ def logout():
     return redirect("/")
 
 
-# Render home page, update posts by changing its order (drag and drop using sortable.js in client side)
+# Render home page, swich post date
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
@@ -170,7 +168,7 @@ def index():
             start_index = request.json["start"]["index"]
             end_index = request.json["end"]["index"]
 
-            # Get all post from current user
+            # Get all post from current user order by date
             posts = Post.query.filter(Post.user_id == session.get("user_id")).order_by(Post.date).all()
 
             # Update posts in the range index
@@ -262,7 +260,7 @@ def add():
         # Clear HTML tags. Check for more options: https://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
         caption = re.sub("<[^<]+?>", "", caption)
 
-        # Encode hashtags, is required by the Facebook API for content publishing
+        # Encode characters, is required by the Facebook API for content publishing
         caption = urllib.parse.quote(caption, safe="")
 
         # Get files

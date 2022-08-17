@@ -1,11 +1,9 @@
 import os
 import requests
-import urllib.parse
 from time import sleep
 from shutil import copy2
 from functools import wraps
 from flask import redirect, render_template, session
-
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 
@@ -26,30 +24,6 @@ def login_required(f):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
-
-
-def lookup(symbol):
-    """Look up quote for symbol."""
-
-    # Contact API
-    try:
-        api_key = os.environ.get("API_KEY")
-        url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key}"
-        response = requests.get(url)
-        response.raise_for_status()
-    except requests.RequestException:
-        return None
-
-    # Parse response
-    try:
-        quote = response.json()
-        return {
-            "name": quote["companyName"],
-            "price": float(quote["latestPrice"]),
-            "symbol": quote["symbol"]
-        }
-    except (KeyError, TypeError, ValueError):
-        return None
 
 
 def http_request(url, type, data=None):
