@@ -24,12 +24,16 @@ if (postSection !== null)
             }
             const alert = document.querySelector('.alert');
             const response = await request('/', 'POST', data);
-            if (!response.ok) console.error('Could not change post date!\n', 'error_datail: ', response.msg);
             if (response.ok)
             {
                 response.dates.forEach((date, index) => postSection.children[index].querySelector('.image-text').textContent = date);
                 alert.textContent = response.msg;
                 alert.className = 'alert alert-info';
+            }
+            else
+            {
+                alert.textContent = response.msg;
+                alert.className = 'alert alert-danger';
             }
 
             e.item.classList.add('filtered');
@@ -50,7 +54,7 @@ if (postSection !== null)
             // Only fired when filtered class is present
             if (e.target.classList.contains('filtered'))
             {
-                const postId = e.target.querySelector('#post-id').value;
+                const postId = e.target.querySelector('.post-id').value;
                 location.href = `${location.href}post/edit/${postId}`;
             }
         });

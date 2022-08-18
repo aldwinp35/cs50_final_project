@@ -152,38 +152,40 @@ def logout():
     return redirect("/")
 
 
-# Render home page, swich post date
+# Render home page, change the order of date in posts
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
 
     if request.method == "POST":
 
-        # Update post date by dragging
         if not request.data:
             return jsonify({"ok":  False, "msg": "Missing indexes"})
 
         else:
-            # Get values from fetch request (range of index)
+            # Get range of indexes
             start_index = request.json["start"]["index"]
             end_index = request.json["end"]["index"]
 
             # Get all post from current user order by date
             posts = Post.query.filter(Post.user_id == session.get("user_id")).order_by(Post.date).all()
 
-            # Update posts in the range index
+            # Change posts date order
             try:
-                # When dragging start form top
+                # When dragged post start from (left side or top) and dropped to (right side or bottom)
                 if start_index < end_index:
                     for i in range(start_index, end_index):
-                        # If one of the date post is close to be publish, dont allow to change
-                        # Update post date
+
+                        # # If post is 20 seconds close to be publish, don't change the order
+                        # if posts[i].date > (datetime.now() - timedelta(seconds=20)):
+                        #     return jsonify({"ok": False, "msg": "Post is being published"})
+
+                        # Swap post date
                         temp = posts[i].date
                         posts[i].date = posts[i + 1].date
                         posts[i + 1].date = temp
 
-                        # Update post: Here we could call 'posts = Post.query.filter(Post.user_id == session....' again, and will do the same thing
-                        # but that's too much call to the database especially if user have lots of posts scheduled.
+                        # Swap post in array
                         temp = posts[i]
                         posts[i] = posts[i + 1]
                         posts[i + 1] = temp
@@ -191,11 +193,15 @@ def index():
                     # Update changes in database
                     db.session.commit()
 
-                # When dragging start form bottom
+                # When dragged post start from (right side or bottom) and dropped to (left side or top)
                 else:
                     start_index = start_index + 1
                     end_index = end_index + 1
                     for i in reversed(range(end_index, start_index)):
+
+                        # if posts[i].date > (datetime.now() - timedelta(seconds=20)):
+                        #     return jsonify({"ok": False, "msg": "Post is being published"})
+
                         temp = posts[i].date
                         posts[i].date = posts[i - 1].date
                         posts[i - 1].date = temp
@@ -211,11 +217,12 @@ def index():
         # Get date of each post
         post_dates = list()
         for p in posts:
+            print(p.caption)
             date = p.date.strftime("%b %d, %I:%M %p")
             post_dates.append(date)
 
         # Return date to update post date in view
-        return jsonify({"ok": True, "msg": "Post dates were updated", "dates": post_dates})
+        return jsonify({"ok": True, "msg": "Posts order updated", "dates": post_dates})
 
     # GET: Render post page
     else:

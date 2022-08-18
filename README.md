@@ -1,7 +1,7 @@
 # Ospost
 #### Video Demo:  <URL HERE>
 #### Description:
-Ospost is a post scheduling for Instagram that you can help you to plan your posts to publish them on a specific date on instagram. Ospost is develop with Flask, JavaScript, Bootstrap and it uses the [Instagram Graph API](https://developers.facebook.com/docs/instagram-api "Go to Instagram API").
+Ospost is a post scheduling for Instagram that can help you to plan your posts to publish them on a specific date on instagram. Ospost is develop with Flask, JavaScript, Bootstrap and it uses the [Instagram Graph API](https://developers.facebook.com/docs/instagram-api "Go to Instagram API").
 
 Before start explaining what each file does, it's important to explain the flow of the app first.
 
@@ -11,20 +11,21 @@ Before start explaining what each file does, it's important to explain the flow 
     * An Instagram Business Account.
     * A Facebook Page connected to that account
 
-    In the log in dialog process, the user select instagram account that will be use and the facebook page connected to that account.
+    In the log in dialog process, the user select an instagram account that will be use, and the facebook page connected to that account.
 
     This will give Ospost an user access token that contains the permissions to post on that instagram account.
 
-2. Create post (schedule)
+2. Create post (schedule a post)
 
-    To create and schedule a post, user does following:
+    To create and schedule a post, user does the following:
 
     * Select the media (only image are supported: jpg, jpeg)
     * Crop image if needed
     * Enter a caption (optional)
-    * Enter a datetime (a date greater than present date and no longer than 50 days)
-3. Edit, Remove post
-4. Publish post
+    * Enter a datetime (a date greater than present date, and no longer than 50 days)
+3. Edit
+4. Remove post
+5. Publish post
 
     To publish a post on instagram, the user can use *publish now* or wait for the cron job to publish it on the specified date.
 
@@ -69,13 +70,13 @@ requeriments.txt
 #### login/index.html
 The login page display a Facebook login button where the user can log in with their Facebook account. The login is processed using the Facebook JavaScript SDK in **loginPage.js** file.
 #### home/index.html
-The home page contains the HTML code to display each post scheduled by the user using jinja sintax.
+The home page contains the HTML code to display each post scheduled by the user using jinja syntax.
 
 In **homePage.js** file we attach two event to each post:
 
-``click`` event that redirect the user to view and edit the post.
+*click* event that redirect the user to view and edit the post.
 
-``long-press`` event that allows the user to change the dates between two posts by dragging and dropping the post using [sortablejs](https://github.com/SortableJS/Sortable).
+*long-press* event that allows the user to change the dates between two posts by dragging and dropping the post using [sortablejs](https://github.com/SortableJS/Sortable).
 
 See [long-press-event](https://github.com/john-doherty/long-press-event).
 
@@ -84,20 +85,20 @@ The post/add page contains the HTML code that allow the user to create a post.
 
 The page contains four important element:
 
-``input file`` user select the image file to be uploaded.
+*input file* user select the image file to be uploaded.
 
-``input datetime-local`` user select a date where the post going to be publish.
+*input datetime-local* user select a date where the post going to be publish.
 
-``textarea`` user enter a caption for the post.
+*textarea* user enter a caption for the post.
 
-``button`` to create post.
+*button* to create post.
 
-In **postAddPage.js** the user inputs are processed using ``formData`` to send data to the backend with ``fetch API``.
+In **postAddPage.js** the user inputs are processed using *formData* to send data to the backend with *fetch API*.
 
 #### post/edit.html
 The post/edit page contains the HTML code to display a form that allow the user to change post ``date`` and ``caption``.
 
-In **postEditPage.js** there are some client validation for date input. Again the data is processed using ``formData`` and send with ``fetch API``.
+In **postEditPage.js** there are some client validation for date input. Again the data is processed using *formData* and send with *fetch API*.
 #### account/index.html
 In that page the users can see and delete their account.
 #### layout.html
@@ -110,7 +111,7 @@ That page contains a privacy policy that are required when using facebook login.
 ### Python files
 
 #### app.py
-This file contains the most important: the ``flask app`` and its configuration settings, as well as routes and functions to proccess each request that are send from the client side. Also contains the logic to connect with the models, proccess and save incoming data to the database.
+This file contains the most important: the **flask app** and its configuration settings, as well as routes and functions to proccess each request that are send from the client side. Also contains the logic to connect with the models, proccess and save incoming data to the database.
 
 **Routes:**
 
@@ -125,14 +126,14 @@ def login():
     fb = {"version": os.getenv("FB_VERSION"), "app_id": os.getenv("FB_APP_ID")}
     return render_template("login/index.html", fb=fb)
 ```
-from the Javascrip Facebook SDK we received ``instagram_account_id`` and a short-lived ``access_token``
+from the Javascrip Facebook SDK we received ``ig_account_id`` and a short-lived ``access_token``
 
 ```python
 # Received from POST
 ig_account_id = request.json["ig_id"]
 temp_access_token = request.json["authResponse"]["accessToken"]
 ```
-Then we chage the ``short-lived token`` to a ``long-lived token`` by sending a GET request to ``https://graph.facebook.com/v12.0/oauth/access_token`` endpoint.
+Then we chage the short-lived ``access_token`` to a long-lived ``access_token`` by sending a GET request to the Graph API endpoint: ``https://graph.facebook.com/v12.0/oauth/access_token?grant_type=fb_exchange_token&client_id={fb_app_id}&client_secret={fb_app_secret}&fb_exchange_token={access_token}``.
 
 ```python
 # Get long-live access token.
@@ -149,9 +150,9 @@ try:
 except requests.RequestException:
     raise
 ```
-The long-lived token is needed because it lasts for 60 days, while the short one only lasts for a couple of hours. If the user wants to schedule a post, we ensure that the selected date is no longer than 50 days, thus, when the ``publish post`` function is triggered, the access token is still valid to publish the post.
+The long-lived ``access_token`` is needed because it lasts for 60 days, while the short one only lasts for a couple of hours. If the user wants to schedule a post, we ensure that the selected ``date`` is no longer than 50 days, thus, when the ``publish post`` function is triggered, the ``access_token`` is still valid to publish the post.
 
-Finally, we search the user by its ``instagram account id`` in the database. If user exists, we update the ``access token``. If user doesn't exist, we create a new user.
+Finally, we search the user by its ``ig_account_id`` in the database. If user exists, we update the ``access_token``. If user doesn't exist, we create a new user.
 ```python
 # Search user by Instagram Account Id
 user = User.query.filter(User.ig_account_id == ig_account_id).first()
@@ -178,22 +179,35 @@ Log out user
 
 */*
 
-Render home page, swich post date
+Render home page, change posts order
 ```python
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
+    ...
 ```
-To swap post date when the post are moved with sortable plugin in client side:
 
-Sortable js give us the ``index`` and an ``old index`` of the post in the container, we call the old index ``start`` and new index ``end``.
+Render home page
+```python
+# GET: Render post page
+posts = Post.query.filter(Post.user_id == session.get("user_id")).order_by(Post.date).all()
+
+# Format date for client side
+for p in posts:
+    p.date = p.date.strftime("%b %d, %I:%M %p")
+
+# Return page
+return render_template("home/index.html", posts=posts)
+```
+
+When we change posts order, sortablejs give us an ``index`` and an ``old index`` of the posts whose order was changed in the container, we send those index to python.
 ```javascript
 const data = {
     "start": {"index": oldIndex},
     "end": {"index": newIndex},
 }
 ```
-Then we get those indexes in python to reflect the swap in the database.
+Then we get the indexes in python to reflect the change in the database.
 ```python
 start_index = request.json["start"]["index"]
 end_index = request.json["end"]["index"]
@@ -201,14 +215,15 @@ end_index = request.json["end"]["index"]
 # Get all post from current user order by date
 posts = Post.query.filter(Post.user_id == session.get("user_id")).order_by(Post.date).all()
 
-# When dragging start form top
+# When dragged post start from (left side or top) and dropped to (right side or bottom)
 if start_index < end_index:
     for i in range(start_index, end_index):
-        # Update post date
+        # Swap post date
         temp = posts[i].date
         posts[i].date = posts[i + 1].date
         posts[i + 1].date = temp
 
+        # Swap post in list
         temp = posts[i]
         posts[i] = posts[i + 1]
         posts[i + 1] = temp
@@ -216,7 +231,7 @@ if start_index < end_index:
     # Update changes in database
     db.session.commit()
 
-# When dragging start form bottom
+# When dragged post start from (right side or bottom) and dropped to (left side or top)
 else:
     start_index = start_index + 1
     end_index = end_index + 1
@@ -230,19 +245,6 @@ else:
         posts[i - 1] = temp
 
     db.session.commit()
-```
-
-Render home page
-```python
-# GET: Render post page
-posts = Post.query.filter(Post.user_id == session.get("user_id")).order_by(Post.date).all()
-
-# Format date for client side (It could be done in js using moment.js for simplicity)
-for p in posts:
-    p.date = p.date.strftime("%b %d, %I:%M %p")
-
-# Return page
-return render_template("home/index.html", posts=posts)
 ```
 
 */post/add*
@@ -262,7 +264,7 @@ Clear any HTML tag in ``caption`` for security reason, then encode it to be plac
 
 Validate ``date`` making sure that it's greater than present date and no longer than 50 days.
 
-Get ``file`` and generate a random filename and save it in a folder named the same as the user ``instagram account id`` inside of ``uploads`` folder
+Get ``file`` and generate a random filename, then save it in a folder named the same as the user ``ig_account_id`` inside of ``uploads`` folder.
 
 ```python
 # POST request
@@ -367,9 +369,118 @@ def large_file_error(error):
 ```
 
 #### models.py
-This file contains models classes specification for our database to be manage by with SQLAlchemy ORM.
+This file contains models classes specification for our database.
 #### helpers.py
 This file contains helper functions like ``publish_post``, ``http_request`` and ``login_required`` function from cs50 finance project.
+
+The ``publish_post`` function contains the code to publish the post on Instagram.
+
+When the user creates a post, an [apscheduler](https://apscheduler.readthedocs.io/en/3.x/userguide.html#adding-jobs) job is added to run the ``publish_post`` function on a given date.
+
+```python
+# Schedule post with apscheduler
+scheduler.add_job(publish_post, args=[post.id], trigger="date", run_date=date, id=str(post.id))
+```
+
+``publish_post`` takes a ``post_id``, that will give us the ``post``, ``user``. The next step is to copy the post ``image`` that is in ``uploads`` folder to ``static/tmp/`` folder (as a requirement of the API, the resource needs to be in a public server). After that, we send a POST request to the API to create a ``container`` for the post, that includes the ``image_url`` and ``caption``. We then keep sending GET request to check the container ``status`` every 4 seconds until the container status is ``FINISHED``. Then we proceed to publish the cotainer by sending a POST request to the API to publish the post on instagram. If everything goes well, the last step is to delete the post from the database and file from uploads and static/tmp folder.
+```python
+def publish_post(post_id):
+
+    # Dont try to post on instagram on development mode
+    if os.environ.get("FLASK_ENV") == "development":
+        print("Your post would be publishing on instagram right now...")
+        return True
+
+    from models import db, Post, User
+    from app import app
+    with app.test_request_context():
+        post = Post.query.filter(Post.id == post_id).first()
+        if not post:
+            print("No post was found")
+            return None
+
+        user = User.query.filter(User.id == post.user_id).first()
+        if not user:
+            print("No user was found")
+            return None
+
+        # Move image to static/tmp/ directory
+        src = os.path.join("uploads", user.ig_account_id, post.filename)
+        dst = "static/tmp/"
+
+        # Create destination directory
+        if not os.path.exists(dst):
+            os.mkdir(dst)
+
+        # Move img to tmp/
+        try:
+            copy2(src, dst)
+        except Exception as e:
+            return None
+
+        # Image url
+        image_url = os.getenv("APP_URL") + os.path.join(dst, post.filename)
+
+        # Get facebook endpoint
+        fb_endpoint = os.getenv("FB_ENDPOINT")
+
+        # Create IG Container ID
+        url = f"{fb_endpoint}{user.ig_account_id}/media?image_url={image_url}&caption={post.caption}&access_token={user.access_token}"
+        response = http_request(url, "POST")
+        if response is None:
+            return None
+
+        container_id = response["id"]
+
+        # Check container status
+        url = f"https://graph.facebook.com/{container_id}?fields=status_code&access_token={user.access_token}"
+        status = "IN_PROGRESS"
+        try_index = 1
+        try_times = 10
+        wait_time = 4
+        while (status != "FINISHED"):
+            if try_index == try_times:
+                return None
+
+            response = http_request(url, "get")
+            if response is None:
+                return None
+
+            status = response["status_code"]
+            try_index += 1
+            sleep(wait_time)
+
+        # Publish Container
+        url = f"{fb_endpoint}{user.ig_account_id}/media_publish?creation_id={container_id}&access_token={user.access_token}"
+        response = http_request(url, "POST")
+        if response is None:
+            return None
+
+        ig_media_id = response["id"]
+
+        if ig_media_id:
+            print("media was published")
+            try:
+                # Delete media from static
+                os.unlink(os.path.join(dst, post.filename))
+
+                # Delete media from upload directory
+                resource_path = os.path.join(app.config["UPLOAD_FOLDER_RELATIVE"], user.ig_account_id)
+                os.unlink(os.path.join(resource_path, post.filename))
+            except OSError as e:
+                return None
+
+            # Delete post form database
+            db.session.delete(post)
+            db.session.commit()
+
+            return True
+        else:
+            print("Fail to post media")
+            # Send an email to user
+
+            return False
+```
 
 ### Database file
 #### ospost.db
