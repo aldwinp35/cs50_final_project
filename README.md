@@ -1,10 +1,10 @@
 # Ospost
-#### Video Demo:  https://youtu.be/hGX3Sjm6-Uc
 #### Description:
 Ospost is a post scheduling for Instagram that can help you to plan your posts to publish them on a specific date on instagram. Ospost is develop with Flask, JavaScript, Bootstrap and it uses the [Instagram Graph API](https://developers.facebook.com/docs/instagram-api "Go to Instagram API").
 
-Before start explaining what each file does, it's important to explain the flow of the app first.
+**Note: This project was developed as a requirement of CS50 Final Project.**
 
+### Functionality:
 1. Log In with facebook
 
     Before the user logs in, need to have the following:
